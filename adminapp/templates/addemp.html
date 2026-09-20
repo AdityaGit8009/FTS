@@ -1,0 +1,46 @@
+{% extends 'adminbase.html' %}
+{% load static %}
+{% block admin %}
+<h1>Add Employee</h1>
+<div class="row">
+    <div class="col-sm-10 mx-auto">
+        <div class="card p-4">
+            <form class="row" method="post" g-4>
+                {% csrf_token %}
+                <div class="col-sm-6">
+                    <label for="eid" class="form-label">Employee ID</label>
+                    <input type="text" class="form-control" name="empid" id="eid">
+                </div>
+                <div class="col-sm-6">
+                    <label for="empname" class="form-label">Employee Name</label>
+                    <input type="text" class="form-control" name="name" id="ename">
+                </div>
+                <div class="col-sm-6">
+                    <label for="number" class="form-label">Contact No</label>
+                    <input type="number" class="form-control" name="contactno" id="eno">
+                </div>
+                <div class="col-sm-6">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" name="email" id="email">
+                </div>
+                <div class="col-sm-6">
+                    <label for="epost" class="form-label">Designation</label>
+                    <input type="text" class="form-control" name="designation" id="epost">
+                </div>
+                <div class="col-sm-6">
+                    <label for="dept_id" class="form-label">Department</label>
+                   <select name="dept_id" id="dept" class="form-select">
+                    <option value="" selected disabled> select Department</option>
+                    {% for d in depts %}
+                    <option value="{{d.id}}">{{d.dept_name}}</option>
+                    {% endfor %}
+                   </select>
+                </div>
+                <div class="col-sm-12 mt-5">
+                    <button type="submit" class="btn btn-primary w-100">Add Employee</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

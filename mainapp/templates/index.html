@@ -1,0 +1,150 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>File Tracking System - Portal Selection</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  </head>
+  <body>
+    <script>
+      (function() {
+        if (localStorage.getItem('theme') === 'light') {
+          document.body.classList.add('light-mode');
+        }
+      })();
+    </script>
+    <!-- Ambient Floating Background Blobs -->
+    <div class="blob-container">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+    </div>
+
+    <!-- Main Glassmorphic Portal Container -->
+    <div class="portal-container">
+      <!-- Left Sidebar Section -->
+      <div class="sidebar">
+        <div class="logo-box animate-fade-up">
+          <i class="fa-solid fa-leaf"></i>
+        </div>
+        <h1 class="animate-fade-up delay-1">File Tracking System</h1>
+        <p class="animate-fade-up delay-2">
+          Secure digital platform for official file upload, movement, approvals,
+          department workflow and real-time tracking.
+        </p>
+
+        <ul class="features-list animate-fade-up delay-3">
+          <li class="feature-item">
+            <div class="feature-icon">
+              <i class="fa-solid fa-file-shield"></i>
+            </div>
+            Secure File Management
+          </li>
+          <li class="feature-item">
+            <div class="feature-icon">
+              <i class="fa-solid fa-route"></i>
+            </div>
+            Track File Movement
+          </li>
+        </ul>
+
+        <!-- Live File Tracking Animation Pipeline -->
+        <div class="file-track-container animate-fade-up delay-4">
+          <div class="file-track-title">
+            <i class="fa-solid fa-spinner"></i> Live File Tracker
+          </div>
+          <div class="track-path">
+            <div class="track-line">
+              <div class="track-progress"></div>
+            </div>
+            
+            <div class="moving-file">
+              <i class="fa-solid fa-file-invoice"></i>
+            </div>
+
+            <div class="track-node node-1">
+              <i class="fa-solid fa-file-circle-plus"></i>
+              <span class="node-text">Create</span>
+            </div>
+            <div class="track-node node-2">
+              <i class="fa-solid fa-paper-plane"></i>
+              <span class="node-text">Forward</span>
+            </div>
+            <div class="track-node node-3">
+              <i class="fa-solid fa-arrow-rotate-left"></i>
+              <span class="node-text">Return</span>
+            </div>
+            <div class="track-node node-4">
+              <i class="fa-solid fa-box-archive"></i>
+              <span class="node-text">Close</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Side Selection Section -->
+      <div class="portal-section">
+        <div class="company-badge animate-fade-up">Green Gas Limited</div>
+        <h2 class="animate-fade-up delay-1">Official Portal</h2>
+        <p class="subtitle animate-fade-up delay-2">Please select your login type to continue.</p>
+
+        <!-- Admin Login Card -->
+        <a href="{% url 'adminlogin' %}" class="login-card animate-fade-up delay-3">
+          <div class="card-icon-container">
+            <i class="fa-solid fa-user-shield"></i>
+          </div>
+          <div class="card-content">
+            <h3>Admin Login</h3>
+            <p>Manage users, departments and all file records.</p>
+          </div>
+        </a>
+
+        <!-- User Login Card -->
+        <a href="{% url 'userlogin' %}" class="login-card animate-fade-up delay-4">
+          <div class="card-icon-container">
+            <i class="fa-solid fa-user-gear"></i>
+          </div>
+          <div class="card-content">
+            <h3>User Login</h3>
+            <p>Upload, update, move and track your files.</p>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- Floating Theme Toggle Button -->
+    <button id="theme-toggle" class="theme-toggle-btn" title="Toggle Light/Dark Mode" aria-label="Toggle Light/Dark Mode">
+      <i class="fa-solid fa-moon"></i>
+    </button>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const themeToggle = document.getElementById('theme-toggle');
+        const toggleIcon = themeToggle.querySelector('i');
+
+        // Set initial icon based on stored theme
+        if (document.body.classList.contains('light-mode')) {
+          toggleIcon.className = 'fa-solid fa-sun';
+        } else {
+          toggleIcon.className = 'fa-solid fa-moon';
+        }
+
+        themeToggle.addEventListener('click', function() {
+          if (document.body.classList.contains('light-mode')) {
+            document.body.classList.remove('light-mode');
+            toggleIcon.className = 'fa-solid fa-moon';
+            localStorage.setItem('theme', 'dark');
+          } else {
+            document.body.classList.add('light-mode');
+            toggleIcon.className = 'fa-solid fa-sun';
+            localStorage.setItem('theme', 'light');
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

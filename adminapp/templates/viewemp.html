@@ -1,0 +1,166 @@
+{% extends 'adminbase.html' %}
+{% load static %}
+{% block admin %}
+
+<div class="row align-items-center mb-4">
+  <div class="col-sm-6">
+    <div class="d-flex align-items-center gap-3">
+      <div class="theme-icon-wrapper bg-light-primary p-2 rounded">
+        <i class="ti ti-users text-primary" style="font-size: 2rem;"></i>
+      </div>
+      <div>
+        <h3 class="mb-0 fw-bold">Manage Employees</h3>
+        <p class="text-muted mb-0">View, update, or remove staff members from the system</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
+    <a href="{% url 'addemp' %}" class="btn btn-primary">
+      <i class="ti ti-plus me-1"></i> Add New Employee
+    </a>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-12">
+    <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+      <div class="card-header bg-transparent border-0 pt-4 px-4 pb-3">
+        <h5 class="mb-0 fw-bold">Active Staff Directory</h5>
+      </div>
+      <div class="card-body px-4 pb-4">
+        <div class="table-responsive">
+          <table id="employeesTable" class="table table-hover align-middle mb-0 text-nowrap" style="width:100%">
+            <thead class="bg-light bg-opacity-50">
+              <tr>
+                <th>Employee ID</th>
+                <th>Photo</th>
+                <th>Name</th>
+                <th>Designation</th>
+                <th>Department</th>
+                <th>Contact</th>
+                <th>Email</th>
+                <th class="text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for e in emp1 %}
+              <tr>
+                <td>
+                  <span class="badge bg-light-secondary text-secondary fw-semibold">{{ e.empid }}</span>
+                </td>
+                <td>
+                  {% if e.picture %}
+                    <img src="{{ e.picture.url }}" alt="Profile" class="rounded-circle border border-2 border-primary" style="width: 40px; height: 40px; object-fit: cover;">
+                  {% else %}
+                    <div class="rounded-circle bg-light-primary d-flex align-items-center justify-content-center text-primary fw-bold" style="width: 40px; height: 40px; font-size: 0.9rem;">
+                      {{ e.name|slice:":1"|upper }}
+                    </div>
+                  {% endif %}
+                </td>
+                <td>
+                  <span class="fw-bold text-dark">{{ e.name }}</span>
+                </td>
+                <td>
+                  <span class="text-secondary">{{ e.designation }}</span>
+                </td>
+                <td>
+                  <span class="badge bg-light-success text-success">{{ e.department.dept_name }}</span>
+                </td>
+                <td>
+                  <span>{{ e.contactno }}</span>
+                </td>
+                <td>
+                  <span class="text-muted">{{ e.email }}</span>
+                </td>
+                <td class="text-center">
+                  <div class="d-flex justify-content-center gap-2">
+                    <a href="{% url 'editemp' e.id %}" class="btn btn-sm btn-light-primary rounded px-2 py-1">
+                      <i class="ti ti-edit me-1"></i> Edit
+                    </a>
+                    <a href="{% url 'deleteemp' e.id %}" class="btn btn-sm btn-light-danger rounded px-2 py-1" onclick="return confirm('Are you sure you want to delete employee {{ e.name }}? This will also remove their credentials.');">
+                      <i class="ti ti-trash me-1"></i> Delete
+                    </a>
+                  </div>
+                </td>
+              </tr>
+              {% empty %}
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .bg-light-primary {
+    background-color: rgba(99, 102, 241, 0.1) !important;
+  }
+  .bg-light-secondary {
+    background-color: rgba(108, 117, 125, 0.1) !important;
+  }
+  .bg-light-success {
+    background-color: rgba(16, 185, 129, 0.1) !important;
+  }
+  .bg-light-danger {
+    background-color: rgba(239, 68, 68, 0.1) !important;
+  }
+  .btn-light-primary {
+    color: #6366f1;
+    background-color: rgba(99, 102, 241, 0.1);
+    border: none;
+    transition: all 0.2s ease;
+  }
+  .btn-light-primary:hover {
+    color: #ffffff;
+    background-color: #6366f1;
+  }
+  .btn-light-danger {
+    color: #ef4444;
+    background-color: rgba(239, 68, 68, 0.1);
+    border: none;
+    transition: all 0.2s ease;
+  }
+  .btn-light-danger:hover {
+    color: #ffffff;
+    background-color: #ef4444;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    $('#employeesTable').DataTable({
+      dom: 'Bfrtip',
+      buttons: [
+        {
+          extend: 'excelHtml5',
+          text: '<i class="ti ti-file-spreadsheet me-1"></i> Excel',
+          className: 'btn btn-sm btn-light-success me-2',
+          exportOptions: { columns: [0, 2, 3, 4, 5, 6] }
+        },
+        {
+          extend: 'pdfHtml5',
+          text: '<i class="ti ti-file-text me-1"></i> PDF',
+          className: 'btn btn-sm btn-light-danger me-2',
+          exportOptions: { columns: [0, 2, 3, 4, 5, 6] }
+        },
+        {
+          extend: 'print',
+          text: '<i class="ti ti-printer me-1"></i> Print',
+          className: 'btn btn-sm btn-light-secondary me-2',
+          exportOptions: { columns: [0, 2, 3, 4, 5, 6] }
+        }
+      ],
+      pageLength: 10,
+      ordering: true,
+      info: true,
+      responsive: true,
+      columnDefs: [
+        { orderable: false, targets: [1, 7] } // disable sorting for photo and action buttons
+      ]
+    });
+  });
+</script>
+
+{% endblock %}

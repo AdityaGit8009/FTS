@@ -1,0 +1,114 @@
+{% extends 'empbase.html' %}
+{% load static %}
+{% block employee %}
+
+<div class="row align-items-center mb-4">
+  <div class="col-sm-6">
+    <div class="d-flex align-items-center gap-3">
+      <div class="theme-icon-wrapper bg-light-primary p-2 rounded">
+        <i class="ti ti-lock text-primary" style="font-size: 2rem;"></i>
+      </div>
+      <div>
+        <h3 class="mb-0 fw-bold">Change Password</h3>
+        <p class="text-muted mb-0">Update credentials for your employee account</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-6 mx-auto">
+    <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+      <div class="card-header bg-transparent border-0 pt-4 px-4">
+        <h5 class="mb-0 fw-bold">Update Security Credentials</h5>
+      </div>
+      <div class="card-body p-4">
+        <form method="post" class="g-3" id="password-form" onsubmit="return validatePasswords();">
+          {% csrf_token %}
+          
+          <!-- Old Password -->
+          <div class="mb-3 position-relative">
+            <label for="old_pass" class="form-label">Old Password</label>
+            <div class="input-group">
+              <span class="input-group-text bg-transparent border-end-0"><i class="ti ti-lock"></i></span>
+              <input type="password" class="form-control border-start-0" name="old_pass" id="old_pass" placeholder="Enter current password" required>
+              <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('old_pass')">
+                <i class="ti ti-eye" id="old_pass-toggle-icon"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- New Password -->
+          <div class="mb-3">
+            <label for="new_pass" class="form-label">New Password</label>
+            <div class="input-group">
+              <span class="input-group-text bg-transparent border-end-0"><i class="ti ti-key"></i></span>
+              <input type="password" class="form-control border-start-0" name="new_pass" id="new_pass" placeholder="Enter new password (min. 6 chars)" minlength="6" required>
+              <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('new_pass')">
+                <i class="ti ti-eye" id="new_pass-toggle-icon"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Confirm New Password -->
+          <div class="mb-4">
+            <label for="confirm_pass" class="form-label">Confirm New Password</label>
+            <div class="input-group">
+              <span class="input-group-text bg-transparent border-end-0"><i class="ti ti-shield-check"></i></span>
+              <input type="password" class="form-control border-start-0" name="confirm_pass" id="confirm_pass" placeholder="Repeat new password" required>
+              <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('confirm_pass')">
+                <i class="ti ti-eye" id="confirm_pass-toggle-icon"></i>
+              </button>
+            </div>
+            <div class="text-danger small mt-1 d-none" id="match-error">Passwords do not match!</div>
+          </div>
+
+          <div class="text-end mt-4">
+            <a href="{% url 'empdash' %}" class="btn btn-light-secondary me-2">Cancel</a>
+            <button type="submit" class="btn btn-primary px-4">
+              <i class="ti ti-shield-lock me-1"></i> Change Password
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .bg-light-primary {
+    background-color: rgba(99, 102, 241, 0.1) !important;
+  }
+  .bg-light-secondary {
+    background-color: rgba(108, 117, 125, 0.1) !important;
+  }
+</style>
+
+<script>
+  function togglePasswordVisibility(inputId) {
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById(inputId + '-toggle-icon');
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.className = 'ti ti-eye-off';
+    } else {
+      input.type = 'password';
+      icon.className = 'ti ti-eye';
+    }
+  }
+
+  function validatePasswords() {
+    const newPass = document.getElementById('new_pass').value;
+    const confirmPass = document.getElementById('confirm_pass').value;
+    const errorDiv = document.getElementById('match-error');
+    
+    if (newPass !== confirmPass) {
+      errorDiv.classList.remove('d-none');
+      return false;
+    }
+    errorDiv.classList.add('d-none');
+    return true;
+  }
+</script>
+
+{% endblock %}

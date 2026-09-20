@@ -1,0 +1,381 @@
+{% extends 'adminbase.html' %}
+{% load static %}
+{% block admin %}
+
+<div class="row align-items-center mb-4">
+  <div class="col-sm-6">
+    <div class="d-flex align-items-center gap-3">
+      <div class="theme-icon-wrapper bg-light-primary p-2 rounded">
+        <i class="ti ti-folders text-primary" style="font-size: 2rem;"></i>
+      </div>
+      <div>
+        <h3 class="mb-0 fw-bold">All Files Tracker</h3>
+        <p class="text-muted mb-0">View all registered files, trace their history, and manage records</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-12">
+    <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+      <div class="card-header bg-transparent border-0 pt-4 px-4 pb-3">
+        <div class="row g-3 align-items-center justify-content-between">
+          <div class="col-md-4">
+            <h5 class="mb-0 fw-bold">File Movement Directory</h5>
+          </div>
+          <div class="col-md-8">
+            <div class="row g-2 justify-content-md-end align-items-center">
+              <!-- Custom Status Filter -->
+              <div class="col-sm-4 col-md-3">
+                <select id="status-filter-select" class="form-select">
+                  <option value="">All Statuses</option>
+                  <option value="Open">Open</option>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Closed">Closed</option>
+                </select>
+              </div>
+              <!-- Custom Priority Filter -->
+              <div class="col-sm-4 col-md-3">
+                <select id="priority-filter-select" class="form-select">
+                  <option value="">All Priorities</option>
+                  <option value="Low">Low</option>
+                  <option value="Medium">Medium</option>
+                  <option value="High">High</option>
+                  <option value="Urgent">Urgent</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card-body px-4 pb-4">
+        <div class="table-responsive">
+          <table id="filesTable" class="table table-hover align-middle mb-0 text-nowrap" style="width:100%">
+            <thead class="bg-light bg-opacity-50">
+              <tr>
+                <th>File No</th>
+                <th>Title & Subject</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Current Holder</th>
+                <th>Attachment</th>
+                <th>Created Date</th>
+                <th class="text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for f in files %}
+              <tr>
+                <td>
+                  <span class="fw-semibold text-primary">{{ f.file_no }}</span>
+                </td>
+                <td>
+                  <strong class="text-dark d-block" style="max-width: 250px; overflow: hidden; text-overflow: ellipsis;">{{ f.title }}</strong>
+                  <small class="text-muted d-block text-truncate" style="max-width: 250px;">{{ f.subject }}</small>
+                </td>
+                <td>
+                  {% if f.priority == 'LOW' %}
+                    <span class="badge bg-light-info text-info">Low</span>
+                  {% elif f.priority == 'MEDIUM' %}
+                    <span class="badge bg-light-secondary text-secondary">Medium</span>
+                  {% elif f.priority == 'HIGH' %}
+                    <span class="badge bg-light-warning text-warning">High</span>
+                  {% else %}
+                    <span class="badge bg-light-danger text-danger badge-blink">Urgent</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if f.status == 'OPEN' %}
+                    <span class="badge bg-light-success text-success px-2 py-1 rounded-pill">Open</span>
+                  {% elif f.status == 'IN_PROGRESS' %}
+                    <span class="badge bg-light-primary text-primary px-2 py-1 rounded-pill">In Progress</span>
+                  {% else %}
+                    <span class="badge bg-light-danger text-danger px-2 py-1 rounded-pill">Closed</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <span class="fw-medium text-dark d-block">{{ f.current_holder.name }}</span>
+                  <span class="d-block text-muted small">{{ f.current_holder.designation }}</span>
+                </td>
+                <td>
+                  {% if f.attachment %}
+                    <a href="{{ f.attachment.url }}" class="btn btn-sm btn-light-primary rounded-circle p-1" title="Download Attachment" download>
+                      <i class="ti ti-download" style="font-size: 1.1rem;"></i>
+                    </a>
+                  {% else %}
+                    <span class="text-muted small">No File</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <span class="text-secondary small">{{ f.created_at|date:"d M Y, h:i A" }}</span>
+                </td>
+                <td class="text-center">
+                  <div class="d-flex justify-content-center gap-2">
+                    <button class="btn btn-sm btn-light-info rounded px-2 py-1" 
+                            type="button" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#historyModal-{{ f.id }}">
+                      <i class="ti ti-history me-1"></i> Track
+                    </button>
+                    <a href="{% url 'editfile' f.id %}" class="btn btn-sm btn-light-primary rounded px-2 py-1">
+                      <i class="ti ti-edit me-1"></i> Edit
+                    </a>
+                    <a href="{% url 'deletefile' f.id %}" class="btn btn-sm btn-light-danger rounded px-2 py-1" onclick="return confirm('Are you sure you want to delete file {{ f.file_no }}? This action is permanent and will delete its movement logs.');">
+                      <i class="ti ti-trash me-1"></i> Delete
+                    </a>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Modal for History Timeline -->
+              <div class="modal fade" id="historyModal-{{ f.id }}" tabindex="-1" aria-labelledby="historyModalLabel-{{ f.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                  <div class="modal-content border-0 shadow-lg" style="border-radius: 14px;">
+                    <div class="modal-header border-0 pt-4 px-4 pb-2">
+                      <h5 class="modal-title fw-bold text-dark" id="historyModalLabel-{{ f.id }}">
+                        <i class="ti ti-route-2 text-primary me-2"></i> Audit Trail & History: <span class="text-primary">{{ f.file_no }}</span>
+                      </h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body px-4 py-3" style="max-height: 450px; overflow-y: auto;">
+                      <div class="row mb-3 pb-3 border-bottom">
+                        <div class="col-md-6">
+                          <span class="text-muted small d-block">File Title:</span>
+                          <strong class="text-dark">{{ f.title }}</strong>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                          <span class="text-muted small d-block">Current Holder:</span>
+                          <span class="badge bg-light-primary text-primary">{{ f.current_holder.name }} ({{ f.current_holder.department.dept_name }})</span>
+                        </div>
+                      </div>
+
+                      <!-- Vertical Timeline -->
+                      <div class="position-relative ps-4 timeline-wrapper mt-4">
+                        <div class="timeline-line position-absolute start-0 top-0 bottom-0 bg-secondary bg-opacity-25" style="width: 2px; left: 15px !important;"></div>
+                        
+                        {% for mv in f.movements.all %}
+                        <div class="position-relative mb-4 timeline-item" style="padding-left: 20px;">
+                          <!-- Timeline circle indicator -->
+                          <div class="position-absolute d-flex align-items-center justify-content-center rounded-circle 
+                            {% if mv.action == 'CREATE' %}bg-success text-white
+                            {% elif mv.action == 'FORWARD' %}bg-primary text-white
+                            {% elif mv.action == 'RETURN' %}bg-warning text-dark
+                            {% else %}bg-danger text-white{% endif %}" 
+                            style="width: 32px; height: 32px; left: -16px; border: 4px solid var(--body-bg, #fff); font-size: 0.8rem; z-index: 2;">
+                            <i class="ti 
+                              {% if mv.action == 'CREATE' %}ti-plus
+                              {% elif mv.action == 'FORWARD' %}ti-arrow-right
+                              {% elif mv.action == 'RETURN' %}ti-arrow-left
+                              {% else %}ti-lock{% endif %}"></i>
+                          </div>
+                          
+                          <!-- Timeline content card -->
+                          <div class="card border border-light shadow-none m-0 ps-3 py-2 bg-light bg-opacity-25" style="border-radius: 8px;">
+                            <div class="card-body p-2">
+                              <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                                <div>
+                                  <span class="badge 
+                                    {% if mv.action == 'CREATE' %}bg-light-success text-success
+                                    {% elif mv.action == 'FORWARD' %}bg-light-primary text-primary
+                                    {% elif mv.action == 'RETURN' %}bg-light-warning text-warning
+                                    {% else %}bg-light-danger text-danger{% endif %} px-2 py-0.5 rounded mb-2">
+                                    {{ mv.get_action_display }}
+                                  </span>
+                                  
+                                  <p class="mb-1 text-dark small mt-1">
+                                    {% if mv.action == 'CREATE' %}
+                                      File initiated by <strong>{{ mv.to_employee.name }}</strong> ({{ mv.to_employee.designation }})
+                                    {% elif mv.action == 'FORWARD' %}
+                                      Forwarded from <strong>{{ mv.from_employee.name }}</strong> to <strong>{{ mv.to_employee.name }}</strong>
+                                    {% elif mv.action == 'RETURN' %}
+                                      Returned from <strong>{{ mv.from_employee.name }}</strong> to <strong>{{ mv.to_employee.name }}</strong>
+                                    {% elif mv.action == 'CLOSE' %}
+                                      File closed by <strong>{{ mv.from_employee.name }}</strong>
+                                    {% endif %}
+                                  </p>
+                                  
+                                  {% if mv.remarks %}
+                                    <p class="mb-0 text-muted small italic-remarks mt-1">
+                                      <i class="ti ti-quote text-secondary me-1"></i>"{{ mv.remarks }}"
+                                    </p>
+                                  {% endif %}
+                                </div>
+                                <div class="text-end">
+                                  <span class="text-secondary small d-block"><i class="ti ti-clock me-1"></i>{{ mv.moved_at|date:"d M Y, h:i A" }}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-muted py-2 text-center">
+                          <i class="ti ti-alert-circle me-1"></i> No movement tracking details recorded.
+                        </div>
+                        {% endfor %}
+                      </div>
+                    </div>
+                    <div class="modal-footer border-0 px-4 pb-4 pt-0">
+                      <button type="button" class="btn btn-secondary rounded" data-bs-dismiss="modal">Close</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {% empty %}
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .bg-light-primary {
+    background-color: rgba(99, 102, 241, 0.1) !important;
+  }
+  .bg-light-success {
+    background-color: rgba(16, 185, 129, 0.1) !important;
+  }
+  .bg-light-danger {
+    background-color: rgba(239, 68, 68, 0.1) !important;
+  }
+  .bg-light-warning {
+    background-color: rgba(245, 158, 11, 0.1) !important;
+  }
+  .bg-light-info {
+    background-color: rgba(6, 182, 212, 0.1) !important;
+  }
+  .bg-light-secondary {
+    background-color: rgba(108, 117, 125, 0.1) !important;
+  }
+  .btn-light-primary {
+    color: #6366f1;
+    background-color: rgba(99, 102, 241, 0.1);
+    border: none;
+    transition: all 0.2s ease;
+  }
+  .btn-light-primary:hover {
+    color: #ffffff;
+    background-color: #6366f1;
+  }
+  .btn-light-info {
+    color: #06b6d4;
+    background-color: rgba(6, 182, 212, 0.1);
+    border: none;
+    transition: all 0.2s ease;
+  }
+  .btn-light-info:hover {
+    color: #ffffff;
+    background-color: #06b6d4;
+  }
+  .btn-light-danger {
+    color: #ef4444;
+    background-color: rgba(239, 68, 68, 0.1);
+    border: none;
+    transition: all 0.2s ease;
+  }
+  .btn-light-danger:hover {
+    color: #ffffff;
+    background-color: #ef4444;
+  }
+  .italic-remarks {
+    font-style: italic;
+    background: rgba(0,0,0,0.02);
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+  }
+  body[data-pc-theme="dark"] .italic-remarks {
+    background: rgba(255,255,255,0.02);
+  }
+  
+  .badge-blink {
+    animation: blinker 1.5s linear infinite;
+  }
+  @keyframes blinker {
+    50% { opacity: 0.6; }
+  }
+
+  /* DataTables Styles Overrides */
+  .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background: #6366f1 !important;
+    color: white !important;
+    border: 1px solid #6366f1 !important;
+    border-radius: 6px;
+  }
+  .dt-buttons {
+    margin-bottom: 1rem;
+  }
+  .dt-button {
+    border-radius: 6px !important;
+    font-size: 0.85rem !important;
+    padding: 0.4rem 0.8rem !important;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Custom style fixes for body variable border mapping in modal
+    const updateBodyBgVar = () => {
+      const isDark = document.body.getAttribute('data-pc-theme') === 'dark';
+      document.documentElement.style.setProperty('--body-bg', isDark ? '#090d16' : '#fff');
+    };
+    updateBodyBgVar();
+    const observer = new MutationObserver(updateBodyBgVar);
+    observer.observe(document.body, { attributes: true });
+
+    // Initialize DataTable with Export Buttons
+    var table = $('#filesTable').DataTable({
+      dom: 'Bfrtip',
+      buttons: [
+        {
+          extend: 'excelHtml5',
+          text: '<i class="ti ti-file-spreadsheet me-1"></i> Excel',
+          className: 'btn btn-sm btn-light-success me-2',
+          exportOptions: { columns: [0, 1, 2, 3, 4, 6] }
+        },
+        {
+          extend: 'pdfHtml5',
+          text: '<i class="ti ti-file-text me-1"></i> PDF',
+          className: 'btn btn-sm btn-light-danger me-2',
+          exportOptions: { columns: [0, 1, 2, 3, 4, 6] }
+        },
+        {
+          extend: 'csvHtml5',
+          text: '<i class="ti ti-file-code me-1"></i> CSV',
+          className: 'btn btn-sm btn-light-info me-2',
+          exportOptions: { columns: [0, 1, 2, 3, 4, 6] }
+        },
+        {
+          extend: 'print',
+          text: '<i class="ti ti-printer me-1"></i> Print',
+          className: 'btn btn-sm btn-light-secondary me-2',
+          exportOptions: { columns: [0, 1, 2, 3, 4, 6] }
+        }
+      ],
+      pageLength: 10,
+      ordering: true,
+      info: true,
+      responsive: true,
+      columnDefs: [
+        { orderable: false, targets: [5, 7] } // disable sorting for Attachment and Actions
+      ]
+    });
+
+    // Custom Filters Trigger
+    $('#status-filter-select').on('change', function() {
+      var val = $(this).val();
+      table.column(3).search(val ? '^' + val + '$' : '', true, false).draw();
+    });
+
+    $('#priority-filter-select').on('change', function() {
+      var val = $(this).val();
+      table.column(2).search(val ? '^' + val + '$' : '', true, false).draw();
+    });
+  });
+</script>
+
+{% endblock %}

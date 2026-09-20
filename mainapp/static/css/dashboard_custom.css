@@ -1,0 +1,506 @@
+/* ==========================================================================
+   Dashboard Custom Theme Overrides (Light & Dark Toggles Support)
+   ========================================================================== */
+
+:root {
+  /* Common Accents */
+  --admin-accent-grad: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  --admin-glow: 0 0 15px rgba(99, 102, 241, 0.35);
+  
+  --emp-accent-grad: linear-gradient(135deg, #06b6d4 0%, #10b981 100%);
+  --emp-glow: 0 0 15px rgba(6, 182, 212, 0.35);
+  
+  /* Dark mode specific vars */
+  --dark-sidebar-bg: linear-gradient(180deg, #020617 0%, #0f172a 100%);
+  --dark-header-bg: rgba(15, 23, 42, 0.75);
+  --dark-content-bg: #090d16;
+  --dark-card-bg: rgba(30, 41, 59, 0.35);
+  --dark-glass-border: rgba(255, 255, 255, 0.06);
+  --dark-glass-border-focus: rgba(255, 255, 255, 0.15);
+  --dark-text-color: #cbd5e1;
+  --dark-text-active: #ffffff;
+  --dark-form-bg: rgba(15, 23, 42, 0.5);
+  --dark-form-focus-bg: rgba(15, 23, 42, 0.8);
+}
+
+/* ==========================================================================
+   DARK THEME SPECIFIC OVERRIDES
+   ========================================================================== */
+
+body[data-pc-theme="dark"] {
+  background-color: var(--dark-content-bg) !important;
+  color: var(--dark-text-color);
+}
+
+body[data-pc-theme="dark"] .pc-container {
+  background-color: var(--dark-content-bg) !important;
+}
+
+/* Sidebar Custom Styling */
+body[data-pc-theme="dark"] .pc-sidebar {
+  background: var(--dark-sidebar-bg) !important;
+  border-right: 1px solid var(--dark-glass-border) !important;
+  box-shadow: 10px 0 30px rgba(0, 0, 0, 0.4) !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+body[data-pc-theme="dark"] .pc-sidebar .navbar-wrapper {
+  background: transparent !important;
+}
+
+body[data-pc-theme="dark"] .pc-sidebar .m-header {
+  border-bottom: 1px solid var(--dark-glass-border) !important;
+  background: transparent !important;
+  padding: 20px 24px;
+}
+
+body[data-pc-theme="dark"] .pc-sidebar .pc-link {
+  color: #94a3b8 !important;
+  font-weight: 500;
+  border-radius: 12px !important;
+  margin: 4px 15px !important;
+  padding: 12px 18px !important;
+  transition: all 0.25s ease !important;
+}
+
+body[data-pc-theme="dark"] .pc-sidebar .pc-navbar > li.active > a,
+body[data-pc-theme="dark"] .pc-sidebar .pc-navbar > li.pc-trigger > a {
+  background: rgba(255, 255, 255, 0.03) !important;
+  color: var(--dark-text-active) !important;
+  border: 1px solid var(--dark-glass-border) !important;
+}
+
+body[data-pc-theme="dark"] .pc-sidebar .pc-link:hover {
+  background: rgba(255, 255, 255, 0.02) !important;
+  color: #ffffff !important;
+  transform: translateX(3px);
+}
+
+/* Header (Top Navbar) */
+body[data-pc-theme="dark"] .pc-header {
+  background: var(--dark-header-bg) !important;
+  backdrop-filter: blur(15px) !important;
+  -webkit-backdrop-filter: blur(15px) !important;
+  border-bottom: 1px solid var(--dark-glass-border) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2) !important;
+  color: #e2e8f0 !important;
+}
+
+body[data-pc-theme="dark"] .pc-header .pc-head-link {
+  color: #cbd5e1 !important;
+  border-radius: 10px !important;
+  transition: all 0.2s ease !important;
+}
+
+body[data-pc-theme="dark"] .pc-header .pc-head-link:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: #ffffff !important;
+}
+
+body[data-pc-theme="dark"] .header-search .form-control {
+  background-color: rgba(15, 23, 42, 0.6) !important;
+  border: 1px solid var(--dark-glass-border) !important;
+  color: #ffffff !important;
+  border-radius: 10px !important;
+}
+
+body[data-pc-theme="dark"] .header-search .form-control:focus {
+  border-color: rgba(99, 102, 241, 0.5) !important;
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.2) !important;
+}
+
+body[data-pc-theme="dark"].emp-dash-body .header-search .form-control:focus {
+  border-color: rgba(6, 182, 212, 0.5) !important;
+  box-shadow: 0 0 12px rgba(6, 182, 212, 0.2) !important;
+}
+
+/* Sleek Translucent Glass Cards */
+body[data-pc-theme="dark"] .card {
+  background: var(--dark-card-bg) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid var(--dark-glass-border) !important;
+  border-radius: 18px !important;
+  box-shadow: var(--shadow-md) !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+body[data-pc-theme="dark"] .card:hover {
+  border-color: var(--dark-glass-border-focus) !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+
+body[data-pc-theme="dark"] .card-header {
+  border-bottom: 1px solid var(--dark-glass-border) !important;
+  background: transparent !important;
+}
+
+body[data-pc-theme="dark"] .card-title {
+  color: #f8fafc !important;
+}
+
+body[data-pc-theme="dark"] .table {
+  color: #cbd5e1 !important;
+}
+
+body[data-pc-theme="dark"] .table th {
+  background-color: rgba(15, 23, 42, 0.5) !important;
+  color: #f8fafc !important;
+  border-bottom: 2px solid var(--dark-glass-border) !important;
+}
+
+body[data-pc-theme="dark"] .table td {
+  border-bottom: 1px solid var(--dark-glass-border) !important;
+}
+
+body[data-pc-theme="dark"] .table tr:hover td {
+  background-color: rgba(255, 255, 255, 0.02) !important;
+}
+
+/* Forms in dashboard */
+body[data-pc-theme="dark"] .form-label {
+  color: #e2e8f0;
+}
+
+body[data-pc-theme="dark"] .form-control, 
+body[data-pc-theme="dark"] .form-select {
+  background-color: var(--dark-form-bg) !important;
+  border: 1px solid var(--dark-glass-border) !important;
+  color: #ffffff !important;
+  border-radius: 10px !important;
+}
+
+body[data-pc-theme="dark"] .form-control:focus, 
+body[data-pc-theme="dark"] .form-select:focus {
+  background-color: var(--dark-form-focus-bg) !important;
+  border-color: rgba(99, 102, 241, 0.5) !important;
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.15) !important;
+}
+
+body[data-pc-theme="dark"].emp-dash-body .form-control:focus, 
+body[data-pc-theme="dark"].emp-dash-body .form-select:focus {
+  border-color: rgba(6, 182, 212, 0.5) !important;
+  box-shadow: 0 0 12px rgba(6, 182, 212, 0.15) !important;
+}
+
+body[data-pc-theme="dark"] .pc-footer {
+  border-top: 1px solid var(--dark-glass-border) !important;
+}
+
+/* ==========================================================================
+   GLOBAL BRANDING AND INTERACTIVE COMPONENTS (Applies to both themes)
+   ========================================================================== */
+
+/* Brand Logo Typography Gradients */
+.pc-sidebar .b-brand {
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  background: var(--admin-accent-grad);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+body.emp-dash-body .pc-sidebar .b-brand {
+  background: var(--emp-accent-grad);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Glowing Left Indicators for active links */
+.pc-sidebar .pc-navbar > li.active > a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 25%;
+  height: 50%;
+  width: 4px;
+  border-radius: 0 4px 4px 0;
+  background: var(--admin-accent-grad);
+}
+
+body.emp-dash-body .pc-sidebar .pc-navbar > li.active > a::after {
+  background: var(--emp-accent-grad);
+}
+
+.pc-sidebar .pc-micon {
+  margin-right: 12px !important;
+  font-size: 1.15rem !important;
+}
+
+/* Stats Cards styling */
+.stat-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::after {
+  content: "";
+  position: absolute;
+  top: -30px;
+  right: -30px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: var(--admin-accent-grad);
+  opacity: 0.08;
+  filter: blur(20px);
+}
+
+body.emp-dash-body .stat-card::after {
+  background: var(--emp-accent-grad);
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.3rem;
+  margin-bottom: 15px;
+}
+
+.admin-accent {
+  background: var(--admin-accent-grad) !important;
+  color: #ffffff !important;
+  box-shadow: var(--admin-glow);
+}
+
+.emp-accent {
+  background: var(--emp-accent-grad) !important;
+  color: #ffffff !important;
+  box-shadow: var(--emp-glow);
+}
+
+/* Status Badges */
+.badge-status {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-block;
+}
+
+.badge-status.open {
+  background: rgba(59, 130, 246, 0.15) !important;
+  color: #3b82f6 !important;
+  border: 1px solid rgba(59, 130, 246, 0.25) !important;
+}
+
+.badge-status.progress {
+  background: rgba(245, 158, 11, 0.15) !important;
+  color: #d97706 !important;
+  border: 1px solid rgba(245, 158, 11, 0.25) !important;
+}
+
+.badge-status.closed {
+  background: rgba(16, 185, 129, 0.15) !important;
+  color: #10b981 !important;
+  border: 1px solid rgba(16, 185, 129, 0.25) !important;
+}
+
+body[data-pc-theme="dark"] .badge-status.open {
+  color: #93c5fd !important;
+}
+
+body[data-pc-theme="dark"] .badge-status.progress {
+  color: #fde047 !important;
+}
+
+body[data-pc-theme="dark"] .badge-status.closed {
+  color: #6ee7b7 !important;
+}
+
+/* Quick Actions Cards */
+.action-card {
+  cursor: pointer;
+  text-align: center;
+  padding: 24px !important;
+  border: 1px solid var(--dark-glass-border);
+  background: rgba(15, 23, 42, 0.03) !important;
+  border-radius: 16px !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+body[data-pc-theme="dark"] .action-card {
+  background: rgba(15, 23, 42, 0.25) !important;
+  border-color: var(--dark-glass-border) !important;
+}
+
+.action-card:hover {
+  transform: translateY(-5px);
+}
+
+body[data-pc-theme="dark"] .action-card:hover {
+  background: rgba(15, 23, 42, 0.55) !important;
+}
+
+.admin-action:hover {
+  border-color: #6366f1 !important;
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.15) !important;
+}
+
+.emp-action:hover {
+  border-color: #06b6d4 !important;
+  box-shadow: 0 8px 24px rgba(6, 182, 212, 0.15) !important;
+}
+
+.action-card i {
+  font-size: 1.8rem;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.admin-action i {
+  background: var(--admin-accent-grad);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.emp-action i {
+  background: var(--emp-accent-grad);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Custom Profile Image View block */
+.profile-view-box {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 15px;
+}
+
+.profile-avatar-large {
+  width: 80px;
+  height: 80px;
+  border-radius: 16px;
+  object-fit: cover;
+  border: 2px solid rgba(0, 0, 0, 0.05);
+}
+
+body[data-pc-theme="dark"] .profile-avatar-large {
+  border-color: var(--dark-glass-border);
+}
+
+.form-label {
+  font-weight: 600;
+}
+
+/* Custom Dark Theme Contrast & Visibility Overrides */
+body[data-pc-theme="dark"] .text-dark,
+body[data-pc-theme="dark"] .fw-bold.text-dark,
+body[data-pc-theme="dark"] .fw-semibold.text-dark {
+  color: #f1f5f9 !important;
+}
+
+body[data-pc-theme="dark"] .text-muted,
+body[data-pc-theme="dark"] small.text-muted,
+body[data-pc-theme="dark"] .card-header-tabs .nav-link:not(.active) {
+  color: #94a3b8 !important;
+}
+
+body[data-pc-theme="dark"] .card-header-tabs .nav-link.active {
+  color: #06b6d4 !important;
+}
+
+body[data-pc-theme="dark"] .bg-light,
+body[data-pc-theme="dark"] .bg-light.bg-opacity-50 {
+  background-color: rgba(30, 41, 59, 0.4) !important;
+}
+
+body[data-pc-theme="dark"] .form-control:disabled,
+body[data-pc-theme="dark"] .form-select:disabled,
+body[data-pc-theme="dark"] input:disabled,
+body[data-pc-theme="dark"] select:disabled,
+body[data-pc-theme="dark"] textarea:disabled {
+  background-color: rgba(15, 23, 42, 0.6) !important;
+  color: #94a3b8 !important;
+  opacity: 0.85;
+  border-color: var(--dark-glass-border) !important;
+}
+
+body[data-pc-theme="dark"] .form-control,
+body[data-pc-theme="dark"] .form-select,
+body[data-pc-theme="dark"] select,
+body[data-pc-theme="dark"] textarea,
+body[data-pc-theme="dark"] input {
+  color: #ffffff !important;
+}
+
+/* Modals styling overrides in Dark Theme */
+body[data-pc-theme="dark"] .modal-content {
+  background-color: #0f172a !important; /* Slate 900 background */
+  border: 1px solid var(--dark-glass-border) !important;
+  color: #e2e8f0 !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.5) !important;
+}
+
+body[data-pc-theme="dark"] .modal-header,
+body[data-pc-theme="dark"] .modal-footer {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  background-color: rgba(15, 23, 42, 0.4) !important;
+}
+
+body[data-pc-theme="dark"] .modal-header .btn-close {
+  filter: invert(1) grayscale(1) brightness(2);
+}
+
+/* DataTables pagination and search control overrides in dark theme */
+body[data-pc-theme="dark"] .dataTables_wrapper .dataTables_filter input,
+body[data-pc-theme="dark"] .dataTables_wrapper .dataTables_length select {
+  background-color: rgba(15, 23, 42, 0.6) !important;
+  border: 1px solid var(--dark-glass-border) !important;
+  color: #ffffff !important;
+  border-radius: 8px;
+  padding: 5px 10px;
+}
+
+body[data-pc-theme="dark"] .dataTables_wrapper .dataTables_info,
+body[data-pc-theme="dark"] .dataTables_wrapper .dataTables_paginate {
+  color: #94a3b8 !important;
+}
+
+body[data-pc-theme="dark"] .dataTables_wrapper .paginate_button {
+  background-color: rgba(30, 41, 59, 0.4) !important;
+  border: 1px solid var(--dark-glass-border) !important;
+  border-radius: 6px !important;
+}
+
+body[data-pc-theme="dark"] .dataTables_wrapper .paginate_button.active,
+body[data-pc-theme="dark"] .dataTables_wrapper .paginate_button.current {
+  background: var(--emp-accent-grad) !important;
+  border-color: #06b6d4 !important;
+  color: #ffffff !important;
+}
+
+body[data-pc-theme="dark"] .dataTables_wrapper .paginate_button.disabled {
+  background-color: rgba(15, 23, 42, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.02) !important;
+  color: #64748b !important;
+}
+
+body[data-pc-theme="dark"] .dt-buttons .btn {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid var(--dark-glass-border) !important;
+  color: #e2e8f0 !important;
+  border-radius: 8px;
+  padding: 6px 12px;
+  transition: all 0.2s ease;
+}
+
+body[data-pc-theme="dark"] .dt-buttons .btn:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+}
+
+/* Custom styling for status card content contrast */
+body[data-pc-theme="dark"] .card .text-white-50 {
+  color: rgba(255, 255, 255, 0.7) !important;
+}

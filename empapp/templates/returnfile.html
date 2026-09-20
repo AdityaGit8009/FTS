@@ -1,0 +1,67 @@
+{% extends 'empbase.html' %}
+{% load static %}
+{% block employee %}
+
+<div class="row align-items-center mb-4">
+  <div class="col-sm-6">
+    <div class="d-flex align-items-center gap-3">
+      <div class="theme-icon-wrapper bg-light-warning p-2 rounded">
+        <i class="ti ti-arrow-left text-warning" style="font-size: 2rem;"></i>
+      </div>
+      <div>
+        <h3 class="mb-0 fw-bold">Return File</h3>
+        <p class="text-muted mb-0">Send the file back to the previous handler or initiator</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
+    <a href="{% url 'viewfiles' %}" class="btn btn-secondary">
+      <i class="ti ti-arrow-left me-1"></i> Back to Dashboard
+    </a>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-8 mx-auto">
+    <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+      <div class="card-header bg-transparent border-0 pt-4 px-4">
+        <h5 class="mb-0 fw-bold">Return File: <span class="text-primary">{{ file.file_no }}</span></h5>
+        <p class="text-muted small mb-0">Title: <strong>{{ file.title }}</strong></p>
+      </div>
+      <div class="card-body p-4">
+        <div class="alert alert-warning border-0 bg-light-warning text-dark mb-4" role="alert" style="border-radius: 8px;">
+          <h6 class="alert-heading fw-bold mb-1"><i class="ti ti-info-circle me-1"></i> Return Target</h6>
+          This file will be returned back to: <strong>{{ target_emp.name }}</strong> ({{ target_emp.designation }} - {{ target_emp.department.dept_name }}).
+        </div>
+
+        <form method="POST">
+          {% csrf_token %}
+          
+          <div class="row g-3">
+            <!-- Remarks -->
+            <div class="col-md-12">
+              <div class="form-group mb-4">
+                <label class="form-label fw-semibold text-dark">Return Remarks / Reason</label>
+                <textarea name="remarks" rows="3" class="form-control" placeholder="Write remarks here explaining why this file is being returned..." required></textarea>
+              </div>
+            </div>
+
+            <div class="col-12 text-end">
+              <button type="submit" class="btn btn-warning text-dark px-4 py-2 fw-semibold">
+                <i class="ti ti-arrow-left me-1"></i> Confirm Return
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .bg-light-warning {
+    background-color: rgba(245, 158, 11, 0.1) !important;
+  }
+</style>
+
+{% endblock %}

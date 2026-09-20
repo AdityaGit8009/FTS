@@ -1,0 +1,129 @@
+{% extends 'empbase.html' %}
+{% load static %}
+{% block employee %}
+
+<div class="row align-items-center mb-4">
+  <div class="col-sm-6">
+    <div class="d-flex align-items-center gap-3">
+      <div class="theme-icon-wrapper bg-light-primary p-2 rounded">
+        <i class="ti ti-user text-primary" style="font-size: 2rem;"></i>
+      </div>
+      <div>
+        <h3 class="mb-0 fw-bold">My Profile</h3>
+        <p class="text-muted mb-0">View your account details and organizational specifications</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Profile Card (Left Side) -->
+  <div class="col-lg-4">
+    <div class="card border-0 shadow-sm text-center p-4 position-relative overflow-hidden" style="border-radius: 16px;">
+      <div class="card-body">
+        <div class="mb-4 d-inline-block position-relative">
+          {% if emp.picture %}
+            <img src="{{ emp.picture.url }}" alt="Profile Picture" class="rounded-circle border border-4 border-light shadow-sm" style="width: 150px; height: 150px; object-fit: cover;">
+          {% else %}
+            <div class="rounded-circle bg-light-primary border border-4 border-light d-flex align-items-center justify-content-center text-primary fw-bold shadow-sm mx-auto" style="width: 150px; height: 150px; font-size: 4rem;">
+              {{ emp.name|slice:":1"|upper }}
+            </div>
+          {% endif %}
+        </div>
+        
+        <h4 class="fw-bold mb-1">{{ emp.name }}</h4>
+        <span class="badge bg-light-primary text-primary px-3 py-2 rounded-pill mb-3">{{ emp.designation }}</span>
+        
+        <div class="text-muted small mt-2">
+          <i class="ti ti-building me-1"></i> {{ emp.department.dept_name }} Department
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Details (Right Side) -->
+  <div class="col-lg-8">
+    <div class="card border-0 shadow-sm p-4" style="border-radius: 16px;">
+      <div class="card-header bg-transparent border-0 ps-0 pt-0 pb-3">
+        <h5 class="fw-bold mb-0 text-dark"><i class="ti ti-id me-2 text-primary"></i>Employee Details</h5>
+      </div>
+      <div class="card-body p-0 mt-2">
+        <div class="row g-4">
+          <div class="col-md-6">
+            <div class="p-3 border rounded bg-light bg-opacity-25 d-flex align-items-center gap-3">
+              <div class="p-2 rounded bg-light-primary text-primary">
+                <i class="ti ti-hash" style="font-size: 1.3rem;"></i>
+              </div>
+              <div>
+                <span class="text-muted d-block small">Employee ID</span>
+                <strong class="text-dark">{{ emp.empid }}</strong>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <div class="p-3 border rounded bg-light bg-opacity-25 d-flex align-items-center gap-3">
+              <div class="p-2 rounded bg-light-primary text-primary">
+                <i class="ti ti-mail" style="font-size: 1.3rem;"></i>
+              </div>
+              <div>
+                <span class="text-muted d-block small">Email Address</span>
+                <strong class="text-dark">{{ emp.email }}</strong>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <div class="p-3 border rounded bg-light bg-opacity-25 d-flex align-items-center gap-3">
+              <div class="p-2 rounded bg-light-primary text-primary">
+                <i class="ti ti-phone" style="font-size: 1.3rem;"></i>
+              </div>
+              <div>
+                <span class="text-muted d-block small">Contact Number</span>
+                <strong class="text-dark">{{ emp.contactno }}</strong>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <div class="p-3 border rounded bg-light bg-opacity-25 d-flex align-items-center gap-3">
+              <div class="p-2 rounded bg-light-primary text-primary">
+                <i class="ti ti-briefcase" style="font-size: 1.3rem;"></i>
+              </div>
+              <div>
+                <span class="text-muted d-block small">Role Designation</span>
+                <strong class="text-dark">{{ emp.designation }}</strong>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-12">
+            <div class="p-3 border rounded bg-light bg-opacity-25 d-flex align-items-start gap-3">
+              <div class="p-2 rounded bg-light-primary text-primary">
+                <i class="ti ti-map-pin" style="font-size: 1.3rem;"></i>
+              </div>
+              <div>
+                <span class="text-muted d-block small">Residential Address</span>
+                <strong class="text-dark">{{ emp.address }}</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="text-end mt-4 pt-3 border-top">
+          <a href="{% url 'updateprofile' %}" class="btn btn-primary px-4 py-2">
+            <i class="ti ti-edit me-1"></i> Update Profile Info
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .bg-light-primary {
+    background-color: rgba(99, 102, 241, 0.1) !important;
+  }
+</style>
+
+{% endblock %}

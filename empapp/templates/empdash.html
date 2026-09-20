@@ -1,0 +1,405 @@
+{% extends 'empbase.html' %}
+{% load static %}
+{% block employee %}
+
+<div class="row align-items-center mb-4">
+  <div class="col-md-8">
+    <div class="d-flex align-items-center gap-3">
+      {% if emp.picture %}
+        <img src="{{ emp.picture.url }}" alt="Profile" class="rounded-circle border border-2 border-primary" style="width: 60px; height: 60px; object-fit: cover;">
+      {% else %}
+        <div class="rounded-circle bg-light-primary border border-2 border-primary d-flex align-items-center justify-content-center text-primary fw-bold fs-3" style="width: 60px; height: 60px;">
+          {{ emp.name|slice:":1"|upper }}
+        </div>
+      {% endif %}
+      <div>
+        <h3 class="mb-0 fw-bold">Welcome back, {{ emp.name }}!</h3>
+        <p class="text-muted mb-0">{{ emp.designation }} &bull; <span class="fw-semibold text-secondary">{{ emp.department.dept_name }}</span></p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4 text-md-end mt-3 mt-md-0">
+    <span class="badge bg-light-secondary text-secondary p-2">
+      <i class="ti ti-calendar me-1"></i> <span id="current-date"></span>
+    </span>
+  </div>
+</div>
+
+<!-- Stats Cards Grid -->
+<div class="row g-4 mb-4">
+  <!-- Files Initiated Card -->
+  <div class="col-md-6 col-xxl-3">
+    <div class="card border-0 shadow-sm custom-hover-card" style="border-radius: 12px; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: #fff;">
+      <div class="card-body p-4 position-relative overflow-hidden">
+        <div class="position-absolute" style="right: -10px; bottom: -20px; opacity: 0.15;">
+          <i class="ti ti-file-plus" style="font-size: 8rem;"></i>
+        </div>
+        <span class="badge bg-white bg-opacity-25 text-white mb-3 px-2 py-1">Initiated</span>
+        <h2 class="text-white fw-bold mb-1">{{ total_initiated }}</h2>
+        <p class="text-white text-opacity-75 mb-0 fw-medium">Files Initiated</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Currently Holding Card -->
+  <div class="col-md-6 col-xxl-3">
+    <div class="card border-0 shadow-sm custom-hover-card" style="border-radius: 12px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #fff;">
+      <div class="card-body p-4 position-relative overflow-hidden">
+        <div class="position-absolute" style="right: -10px; bottom: -20px; opacity: 0.15;">
+          <i class="ti ti-hand-stop" style="font-size: 8rem;"></i>
+        </div>
+        <span class="badge bg-white bg-opacity-25 text-white mb-3 px-2 py-1">Attention</span>
+        <h2 class="text-white fw-bold mb-1">{{ total_holding }}</h2>
+        <p class="text-white text-opacity-75 mb-0 fw-medium">Pending With Me</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Closed Files Card -->
+  <div class="col-md-6 col-xxl-3">
+    <div class="card border-0 shadow-sm custom-hover-card" style="border-radius: 12px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #fff;">
+      <div class="card-body p-4 position-relative overflow-hidden">
+        <div class="position-absolute" style="right: -10px; bottom: -20px; opacity: 0.15;">
+          <i class="ti ti-circle-check" style="font-size: 8rem;"></i>
+        </div>
+        <span class="badge bg-white bg-opacity-25 text-white mb-3 px-2 py-1">Completed</span>
+        <h2 class="text-white fw-bold mb-1">{{ closed_initiated }}</h2>
+        <p class="text-white text-opacity-75 mb-0 fw-medium">My Closed Files</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Total Activity movements -->
+  <div class="col-md-6 col-xxl-3">
+    <div class="card border-0 shadow-sm custom-hover-card" style="border-radius: 12px; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: #fff;">
+      <div class="card-body p-4 position-relative overflow-hidden">
+        <div class="position-absolute" style="right: -10px; bottom: -20px; opacity: 0.15;">
+          <i class="ti ti-arrows-left-right" style="font-size: 8rem;"></i>
+        </div>
+        <span class="badge bg-white bg-opacity-25 text-white mb-3 px-2 py-1">Interactions</span>
+        <h2 class="text-white fw-bold mb-1">{{ movements.count }}</h2>
+        <p class="text-white text-opacity-75 mb-0 fw-medium">Recent Transactions</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row g-4 mb-4">
+  <!-- My Workload Distribution chart -->
+  <div class="col-lg-7">
+    <div class="card border-0 shadow-sm h-100" style="border-radius: 12px;">
+      <div class="card-header bg-transparent border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+        <div>
+          <h5 class="mb-0 fw-bold">Workload & Task Balance</h5>
+          <small class="text-muted">Visual distribution of actions and ownership</small>
+        </div>
+        <i class="ti ti-activity text-muted fs-4"></i>
+      </div>
+      <div class="card-body px-3 pb-3">
+        <div id="workload-chart" style="min-height: 320px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- My Initiated Files Ratio -->
+  <div class="col-lg-5">
+    <div class="card border-0 shadow-sm h-100" style="border-radius: 12px;">
+      <div class="card-header bg-transparent border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+        <div>
+          <h5 class="mb-0 fw-bold">Initiated Document Pipeline</h5>
+          <small class="text-muted">Status of files you started</small>
+        </div>
+        <i class="ti ti-folder text-muted fs-4"></i>
+      </div>
+      <div class="card-body d-flex flex-column justify-content-between align-items-center px-4 pb-4">
+        {% if total_initiated > 0 %}
+          <div id="initiated-ratio-chart" style="width: 100%; min-height: 250px;"></div>
+          <div class="w-100 mt-3 border-top pt-3">
+            <div class="row text-center g-2">
+              <div class="col-4">
+                <span class="d-block text-muted small"><i class="ti ti-circle-filled text-success me-1"></i>Open</span>
+                <strong class="fs-6">{{ open_initiated }}</strong>
+              </div>
+              <div class="col-4">
+                <span class="d-block text-muted small"><i class="ti ti-circle-filled text-primary me-1"></i>In Progress</span>
+                <strong class="fs-6">{{ inprogress_initiated }}</strong>
+              </div>
+              <div class="col-4">
+                <span class="d-block text-muted small"><i class="ti ti-circle-filled text-danger me-1"></i>Closed</span>
+                <strong class="fs-6">{{ closed_initiated }}</strong>
+              </div>
+            </div>
+          </div>
+        {% else %}
+          <div class="text-center my-auto py-5">
+            <i class="ti ti-file-text text-muted fs-1 mb-3"></i>
+            <p class="text-muted mb-0">You have not initiated any files yet.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Pending Files & Transaction Log -->
+<div class="row g-4">
+  <!-- Files Currently Pending With Employee -->
+  <div class="col-xl-6">
+    <div class="card border-0 shadow-sm h-100" style="border-radius: 12px;">
+      <div class="card-header bg-transparent border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+        <div>
+          <h5 class="mb-0 fw-bold">My Pending Queue</h5>
+          <small class="text-muted">Files requiring your immediate action</small>
+        </div>
+        <span class="badge bg-light-warning text-warning">{{ total_holding }} Pending</span>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0 text-nowrap">
+            <thead class="bg-light bg-opacity-50">
+              <tr>
+                <th class="ps-4">File No</th>
+                <th>Subject/Title</th>
+                <th>Initiated By</th>
+                <th class="pe-4">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for f in holding_files %}
+              <tr>
+                <td class="ps-4">
+                  <span class="fw-semibold text-primary d-block">{{ f.file_no }}</span>
+                  <small class="text-muted">{{ f.created_at|date:"d M Y" }}</small>
+                </td>
+                <td>
+                  <span class="fw-bold text-dark d-block text-truncate" style="max-width: 180px;">{{ f.title }}</span>
+                </td>
+                <td>
+                  <span class="fw-medium">{{ f.initiated_by.name }}</span>
+                </td>
+                <td class="pe-4">
+                  <a href="{% url 'viewfiles' %}" class="btn btn-sm btn-primary rounded">Forward / Action</a>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="4" class="text-center py-5 text-muted">
+                  <i class="ti ti-checkbox fs-1 mb-2 d-block text-success"></i>
+                  Awesome! No pending files in your queue.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent activity log involving this employee -->
+  <div class="col-xl-6">
+    <div class="card border-0 shadow-sm h-100" style="border-radius: 12px;">
+      <div class="card-header bg-transparent border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+        <div>
+          <h5 class="mb-0 fw-bold">My Recent Transactions</h5>
+          <small class="text-muted">Activity log of your sent and received documents</small>
+        </div>
+        <i class="ti ti-history text-muted fs-4"></i>
+      </div>
+      <div class="card-body p-0">
+        <div class="list-group list-group-flush">
+          {% for mv in movements %}
+          <div class="list-group-item px-4 py-3 border-0 border-bottom">
+            <div class="d-flex w-100 justify-content-between align-items-center">
+              <div class="d-flex align-items-center gap-3">
+                <div class="p-2 rounded bg-opacity-10 
+                  {% if mv.action == 'FORWARD' %}bg-primary text-primary
+                  {% elif mv.action == 'RETURN' %}bg-warning text-warning
+                  {% elif mv.action == 'CREATE' %}bg-success text-success
+                  {% else %}bg-danger text-danger{% endif %}">
+                  <i class="ti 
+                    {% if mv.action == 'FORWARD' %}ti-arrow-right
+                    {% elif mv.action == 'RETURN' %}ti-arrow-left
+                    {% elif mv.action == 'CREATE' %}ti-plus
+                    {% else %}ti-lock{% endif %}" style="font-size: 1.2rem;"></i>
+                </div>
+                <div>
+                  <span class="fw-semibold text-dark">{{ mv.file.file_no }}</span>
+                  <p class="mb-0 text-muted small">
+                    {% if mv.action == 'CREATE' %}
+                      Initiated the file
+                    {% elif mv.from_employee == emp %}
+                      Forwarded to <strong>{{ mv.to_employee.name }}</strong>
+                    {% else %}
+                      Received from <strong>{{ mv.from_employee.name }}</strong>
+                    {% endif %}
+                  </p>
+                </div>
+              </div>
+              <div class="text-end">
+                <span class="text-secondary small">{{ mv.moved_at|date:"d M, h:i A" }}</span>
+                {% if mv.remarks %}
+                  <span class="d-block text-muted small text-truncate mt-1" style="max-width: 150px; font-style: italic;">"{{ mv.remarks }}"</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          {% empty %}
+          <div class="text-center py-5 text-muted">
+            <i class="ti ti-activity fs-1 mb-2 d-block"></i>
+            No transactions recorded.
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Extra styles for custom looks -->
+<style>
+  .custom-hover-card {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .custom-hover-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15) !important;
+  }
+  .bg-light-primary {
+    background-color: rgba(59, 130, 246, 0.1) !important;
+  }
+  .bg-light-secondary {
+    background-color: rgba(108, 117, 125, 0.1) !important;
+  }
+  .bg-light-success {
+    background-color: rgba(16, 185, 129, 0.1) !important;
+  }
+</style>
+
+<!-- Scripts for Charts -->
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    // Setting current date
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById("current-date").textContent = new Date().toLocaleDateString('en-US', options);
+
+    // 1. Workload Chart (Bar Chart comparing Initiated vs Pending with Me vs Actions)
+    const isDark = document.body.getAttribute('data-pc-theme') === 'dark';
+    const textColor = isDark ? '#9ca3af' : '#4b5563';
+    const gridColor = isDark ? '#374151' : '#e5e7eb';
+
+    var workloadOptions = {
+      series: [{
+        name: 'Files count',
+        data: [{{ total_initiated }}, {{ total_holding }}, {{ movements.count }}]
+      }],
+      chart: {
+        type: 'bar',
+        height: 320,
+        toolbar: { show: false },
+        foreColor: textColor
+      },
+      plotOptions: {
+        bar: {
+          borderRadius: 6,
+          columnWidth: '40%',
+          distributed: true,
+        }
+      },
+      colors: ['#3b82f6', '#f59e0b', '#8b5cf6'],
+      dataLabels: { enabled: false },
+      legend: { show: false },
+      grid: {
+        borderColor: gridColor,
+        strokeDashArray: 4,
+      },
+      xaxis: {
+        categories: ['Created By Me', 'Pending My Action', 'My Transactions'],
+        axisBorder: { show: false },
+        axisTicks: { show: false }
+      },
+      yaxis: {
+        labels: {
+          formatter: function (val) {
+            return Math.floor(val);
+          }
+        }
+      },
+      tooltip: {
+        theme: isDark ? 'dark' : 'light'
+      }
+    };
+
+    var workloadChart = new ApexCharts(document.querySelector("#workload-chart"), workloadOptions);
+    workloadChart.render();
+
+    // 2. Initiated Files Status Ratio Chart
+    {% if total_initiated > 0 %}
+    var initiatedOptions = {
+      series: [{{ open_initiated }}, {{ inprogress_initiated }}, {{ closed_initiated }}],
+      labels: ['Open', 'In Progress', 'Closed'],
+      chart: {
+        type: 'donut',
+        height: 250,
+        foreColor: isDark ? '#9ca3af' : '#4b5563'
+      },
+      colors: ['#10b981', '#3b82f6', '#ef4444'],
+      legend: { show: false },
+      stroke: { show: false },
+      dataLabels: { enabled: false },
+      plotOptions: {
+        pie: {
+          donut: {
+            size: '75%',
+            labels: {
+              show: true,
+              total: {
+                show: true,
+                label: 'My Total Files',
+                formatter: function (w) {
+                  return {{ total_initiated }};
+                }
+              }
+            }
+          }
+        }
+      },
+      tooltip: {
+        theme: isDark ? 'dark' : 'light'
+      }
+    };
+
+    var initiatedChart = new ApexCharts(document.querySelector("#initiated-ratio-chart"), initiatedOptions);
+    initiatedChart.render();
+    {% endif %}
+
+    // Theme switch observer to adjust graph colors dynamically
+    const observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        if (mutation.attributeName === "data-pc-theme") {
+          const dark = document.body.getAttribute('data-pc-theme') === 'dark';
+          const newColor = dark ? '#9ca3af' : '#4b5563';
+          const newGrid = dark ? '#374151' : '#e5e7eb';
+
+          if (typeof workloadChart !== 'undefined') {
+            workloadChart.updateOptions({
+              chart: { foreColor: newColor },
+              grid: { borderColor: newGrid },
+              tooltip: { theme: dark ? 'dark' : 'light' }
+            });
+          }
+          if (typeof initiatedChart !== 'undefined') {
+            initiatedChart.updateOptions({
+              chart: { foreColor: newColor },
+              tooltip: { theme: dark ? 'dark' : 'light' }
+            });
+          }
+        }
+      });
+    });
+    observer.observe(document.body, { attributes: true });
+  });
+</script>
+
+{% endblock %}

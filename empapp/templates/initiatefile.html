@@ -1,0 +1,159 @@
+{% extends 'empbase.html' %}
+{% load static %}
+{% block employee %}
+
+<div class="row align-items-center mb-4">
+  <div class="col-sm-6">
+    <div class="d-flex align-items-center gap-3">
+      <div class="theme-icon-wrapper bg-light-primary p-2 rounded">
+        <i class="ti ti-file-plus text-primary" style="font-size: 2rem;"></i>
+      </div>
+      <div>
+        <h3 class="mb-0 fw-bold">Initiate New File</h3>
+        <p class="text-muted mb-0">Create a file tracking record, set priority, attach documents, and assign it</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-8 mx-auto">
+    <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+      <div class="card-body p-4">
+        <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          
+          <div class="row g-3">
+            <div class="col-md-12">
+              <div class="form-group mb-3">
+                <label class="form-label fw-semibold text-dark">File Title / Heading</label>
+                <input type="text" name="title" class="form-control" placeholder="e.g. Purchase Invoice Approval Request" required>
+              </div>
+            </div>
+
+            <div class="col-md-12">
+              <div class="form-group mb-3">
+                <label class="form-label fw-semibold text-dark">Subject Details / Description</label>
+                <textarea name="subject" rows="4" class="form-control" placeholder="Provide detailed subject description..." required></textarea>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="form-group mb-3">
+                <label class="form-label fw-semibold text-dark">Priority Level</label>
+                <select name="priority" class="form-select" required>
+                  <option value="LOW">Low</option>
+                  <option value="MEDIUM" selected>Medium</option>
+                  <option value="HIGH">High</option>
+                  <option value="URGENT">Urgent</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="form-group mb-3">
+                <label class="form-label fw-semibold text-dark">Document Attachment</label>
+                <input type="file" name="attachment" class="form-control">
+                <small class="text-muted">Optionally upload PDF, Word document, or image (Max: 5MB)</small>
+              </div>
+            </div>
+
+            <!-- Department Selector -->
+            <div class="col-md-6">
+              <div class="form-group mb-3">
+                <label class="form-label fw-semibold text-dark">Target Department</label>
+                <select id="dept_select" class="form-select" required>
+                  <option value="">-- Choose Department --</option>
+                  {% for dept in departments %}
+                  <option value="{{ dept.id }}">{{ dept.dept_name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+
+            <!-- Employee Selector -->
+            <div class="col-md-6">
+              <div class="form-group mb-3">
+                <label class="form-label fw-semibold text-dark">Assignee (Employee)</label>
+                <select id="emp_select" name="emp_id" class="form-select" disabled>
+                  <option value="">-- Select Department First --</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="col-md-12">
+              <div class="form-group mb-4">
+                <label class="form-label fw-semibold text-dark">Remarks / Comments (Optional)</label>
+                <input type="text" name="remarks" class="form-control" placeholder="e.g. Initiating file for audit purposes">
+              </div>
+            </div>
+
+            <div class="col-12 text-end">
+              <button type="submit" class="btn btn-primary px-4 py-2">
+                <i class="ti ti-send me-1"></i> Initiate & Forward
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .bg-light-primary {
+    background-color: rgba(99, 102, 241, 0.1) !important;
+  }
+</style>
+
+<!-- JS for Dynamic Dropdowns Filtering -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const deptSelect = document.getElementById('dept_select');
+    const empSelect = document.getElementById('emp_select');
+
+    // Store all employees in an array
+    const employees = [
+      {% for employee in employees %}
+      {
+        id: "{{ employee.id }}",
+        name: "{{ employee.name }}",
+        designation: "{{ employee.designation }}",
+        deptId: "{{ employee.department.id }}"
+      },
+      {% endfor %}
+    ];
+
+    deptSelect.addEventListener('change', function() {
+      const selectedDeptId = this.value;
+      
+      // Clear options
+      empSelect.innerHTML = '<option value="">-- Select Employee --</option>';
+
+      if (selectedDeptId) {
+        const filteredEmps = employees.filter(emp => emp.deptId === selectedDeptId);
+        
+        if (filteredEmps.length > 0) {
+          filteredEmps.forEach(emp => {
+            const option = document.createElement('option');
+            option.value = emp.id;
+            option.textContent = `${emp.name} (${emp.designation})`;
+            empSelect.appendChild(option);
+          });
+          empSelect.disabled = false;
+          empSelect.required = true;
+        } else {
+          empSelect.innerHTML = '<option value="">No employees found in this department</option>';
+          empSelect.disabled = true;
+          empSelect.required = false;
+        }
+      } else {
+        empSelect.innerHTML = '<option value="">-- Select Department First --</option>';
+        empSelect.disabled = true;
+        empSelect.required = false;
+      }
+    });
+  });
+</script>
+
+{% endblock %}

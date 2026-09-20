@@ -1,0 +1,195 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Login - File Tracking System</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  </head>
+  <body class="userbody">
+    <script>
+      (function() {
+        if (localStorage.getItem('theme') === 'light') {
+          document.body.classList.add('light-mode');
+        }
+      })();
+    </script>
+    <!-- Ambient Floating Background Blobs -->
+    <div class="blob-container">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+    </div>
+
+    <!-- Main Glassmorphic Container -->
+    <div class="login-container">
+      <!-- Left Sidebar Section -->
+      <div class="sidebar1">
+        <div class="logo-box1 animate-fade-up">
+          <img src="{% static 'img/image.png' %}" alt="Logo" />
+        </div>
+        <h1 class="animate-fade-up delay-1">File Tracking System</h1>
+        <p class="animate-fade-up delay-2">
+          Secure digital platform for managing official files, approvals,
+          department-wise movement and real-time file tracking.
+        </p>
+
+        <ul class="features-list1 animate-fade-up delay-3">
+          <li class="feature-item1">
+            <div class="feature-icon1">
+              <i class="fa-solid fa-file-shield"></i>
+            </div>
+            Secure File Management
+          </li>
+          <li class="feature-item1">
+            <div class="feature-icon1">
+              <i class="fa-solid fa-route"></i>
+            </div>
+            Track File Movement
+          </li>
+          <li class="feature-item1">
+            <div class="feature-icon1">
+              <i class="fa-solid fa-user-check"></i>
+            </div>
+            User Based Authentication
+          </li>
+        </ul>
+
+        <!-- Live File Tracking Animation Pipeline -->
+        <div class="file-track-container animate-fade-up delay-4">
+          <div class="file-track-title">
+            <i class="fa-solid fa-spinner"></i> Live File Tracker
+          </div>
+          <div class="track-path">
+            <div class="track-line">
+              <div class="track-progress"></div>
+            </div>
+            
+            <div class="moving-file">
+              <i class="fa-solid fa-file-invoice"></i>
+            </div>
+
+            <div class="track-node node-1">
+              <i class="fa-solid fa-file-circle-plus"></i>
+              <span class="node-text">Create</span>
+            </div>
+            <div class="track-node node-2">
+              <i class="fa-solid fa-paper-plane"></i>
+              <span class="node-text">Forward</span>
+            </div>
+            <div class="track-node node-3">
+              <i class="fa-solid fa-arrow-rotate-left"></i>
+              <span class="node-text">Return</span>
+            </div>
+            <div class="track-node node-4">
+              <i class="fa-solid fa-box-archive"></i>
+              <span class="node-text">Close</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Login Form Section -->
+      <div class="form-section1">
+        <span class="company-name1 animate-fade-up">Green Gas Limited</span>
+        <h2 class="animate-fade-up delay-1">User Login</h2>
+        <p class="subtitle1 animate-fade-up delay-2">Enter your credentials to access the dashboard</p>
+        
+        <!-- Django Messages -->
+        {% if messages %}
+        {% for m in messages %}
+        <div class="alert alert-warning alert-dismissible fade show animate-fade-up" role="alert">
+            <span><i class="fa-solid fa-triangle-exclamation me-2"></i> {{m}}</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <form method="post">
+          {% csrf_token %}
+          <!-- Username Input -->
+          <div class="form-group1 animate-fade-up delay-3">
+            <label for="username">Username / Email</label>
+            <div class="input-container1">
+              <i class="fa-regular fa-user"></i>
+              <input
+                type="text"
+                name="username"
+                id="username"
+                placeholder="Enter username or email"
+                required
+              />
+            </div>
+          </div>
+
+          <!-- Password Input -->
+          <div class="form-group1 animate-fade-up delay-4">
+            <label for="password">Password</label>
+            <div class="input-container1">
+              <i class="fa-solid fa-lock"></i>
+              <input
+                type="password"
+                name="password"
+                id="password"
+                placeholder="Enter password"
+                required
+              />
+            </div>
+          </div>
+
+          <!-- Remember Me & Forgot Password -->
+          <div class="form-utils1 animate-fade-up delay-4">
+            <label class="remember-me1">
+              <input type="checkbox" /> Remember me
+            </label>
+            <a href="{% url 'forgot_password' %}" class="forgot-pass">Forgot Password?</a>
+          </div>
+
+          <!-- Login Button -->
+          <button type="submit" class="login-btn1 animate-fade-up delay-4">
+            <i class="fa-solid fa-right-to-bracket"></i> User Login
+          </button>
+
+          <!-- Back to Portal Link -->
+          <a href="{% url 'index' %}" class="back-link1 animate-fade-up delay-4">
+            <i class="fa-solid fa-chevron-left"></i> Back to Portal
+          </a>  
+        </form>
+      </div>
+    </div>
+
+    <!-- Floating Theme Toggle Button -->
+    <button id="theme-toggle" class="theme-toggle-btn" title="Toggle Light/Dark Mode" aria-label="Toggle Light/Dark Mode">
+      <i class="fa-solid fa-moon"></i>
+    </button>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const themeToggle = document.getElementById('theme-toggle');
+        const toggleIcon = themeToggle.querySelector('i');
+
+        // Set initial icon based on stored theme
+        if (document.body.classList.contains('light-mode')) {
+          toggleIcon.className = 'fa-solid fa-sun';
+        } else {
+          toggleIcon.className = 'fa-solid fa-moon';
+        }
+
+        themeToggle.addEventListener('click', function() {
+          if (document.body.classList.contains('light-mode')) {
+            document.body.classList.remove('light-mode');
+            toggleIcon.className = 'fa-solid fa-moon';
+            localStorage.setItem('theme', 'dark');
+          } else {
+            document.body.classList.add('light-mode');
+            toggleIcon.className = 'fa-solid fa-sun';
+            localStorage.setItem('theme', 'light');
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

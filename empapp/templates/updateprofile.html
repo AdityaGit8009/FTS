@@ -1,0 +1,109 @@
+{% extends 'empbase.html' %}
+{% load static %}
+{% block employee %}
+
+<div class="row align-items-center mb-4">
+  <div class="col-sm-6">
+    <div class="d-flex align-items-center gap-3">
+      <div class="theme-icon-wrapper bg-light-primary p-2 rounded">
+        <i class="ti ti-edit text-primary" style="font-size: 2rem;"></i>
+      </div>
+      <div>
+        <h3 class="mb-0 fw-bold">Update Profile</h3>
+        <p class="text-muted mb-0">Modify your personal contact details, residential address, or profile image</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
+    <a href="{% url 'viewprofile' %}" class="btn btn-secondary">
+      <i class="ti ti-arrow-left me-1"></i> Back to Profile
+    </a>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-8 mx-auto">
+    <div class="card border-0 shadow-sm" style="border-radius: 16px;">
+      <div class="card-body p-4">
+        <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+          {% csrf_token %}
+          
+          <div class="row g-3">
+            <!-- Employee ID (ReadOnly) -->
+            <div class="col-md-6">
+              <div class="form-group mb-3">
+                <label class="form-label fw-semibold text-dark">Employee ID</label>
+                <input type="text" class="form-control bg-light bg-opacity-50" value="{{ emp.empid }}" disabled>
+              </div>
+            </div>
+
+            <!-- Email Address (ReadOnly) -->
+            <div class="col-md-6">
+              <div class="form-group mb-3">
+                <label class="form-label fw-semibold text-dark">Email Address</label>
+                <input type="email" class="form-control bg-light bg-opacity-50" value="{{ emp.email }}" disabled>
+              </div>
+            </div>
+
+            <!-- Employee Name -->
+            <div class="col-md-6">
+              <div class="form-group mb-3">
+                <label class="form-label fw-semibold text-dark">Employee Name</label>
+                <input type="text" name="name" class="form-control" value="{{ emp.name }}" required>
+                <div class="invalid-feedback">Please enter your name.</div>
+              </div>
+            </div>
+
+            <!-- Contact Number -->
+            <div class="col-md-6">
+              <div class="form-group mb-3">
+                <label class="form-label fw-semibold text-dark">Contact Number</label>
+                <input type="text" name="contactno" class="form-control" value="{{ emp.contactno }}" required>
+                <div class="invalid-feedback">Please enter contact number.</div>
+              </div>
+            </div>
+
+            <!-- Profile Picture File Upload -->
+            <div class="col-md-12">
+              <div class="form-group mb-3">
+                <label class="form-label fw-semibold text-dark">Profile Picture</label>
+                <input type="file" name="picture" class="form-control" accept="image/*">
+                <small class="text-muted">Optionally upload a square profile picture (JPEG, PNG, max 2MB)</small>
+              </div>
+              {% if emp.picture %}
+              <div class="d-flex align-items-center gap-3 p-2 border rounded mb-3 bg-light bg-opacity-25" style="max-width: 300px;">
+                <img src="{{ emp.picture.url }}" class="rounded" style="width: 45px; height: 45px; object-fit: cover;">
+                <span class="text-muted small text-truncate">Current: {{ emp.picture.name }}</span>
+              </div>
+              {% endif %}
+            </div>
+
+            <!-- Address Textarea -->
+            <div class="col-md-12">
+              <div class="form-group mb-4">
+                <label class="form-label fw-semibold text-dark">Residential Address</label>
+                <textarea name="address" rows="4" class="form-control" placeholder="Enter your full residential address..." required>{{ emp.address }}</textarea>
+                <div class="invalid-feedback">Please enter your address.</div>
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="col-12 text-end">
+              <button type="submit" class="btn btn-primary px-4 py-2">
+                <i class="ti ti-device-floppy me-1"></i> Save Changes
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .bg-light-primary {
+    background-color: rgba(99, 102, 241, 0.1) !important;
+  }
+</style>
+
+{% endblock %}

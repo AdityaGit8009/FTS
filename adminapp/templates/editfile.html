@@ -1,0 +1,125 @@
+{% extends 'adminbase.html' %}
+{% load static %}
+{% block admin %}
+
+<div class="row align-items-center mb-4">
+  <div class="col-sm-6">
+    <div class="d-flex align-items-center gap-3">
+      <div class="theme-icon-wrapper bg-light-primary p-2 rounded">
+        <i class="ti ti-edit text-primary" style="font-size: 2rem;"></i>
+      </div>
+      <div>
+        <h3 class="mb-0 fw-bold">Edit File</h3>
+        <p class="text-muted mb-0">Modify file metadata, priority status, or reassign holder</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
+    <a href="{% url 'viewallfiles' %}" class="btn btn-secondary">
+      <i class="ti ti-arrow-left me-1"></i> Back to Directory
+    </a>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-8 mx-auto">
+    <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+      <div class="card-header bg-transparent border-0 pt-4 px-4">
+        <h5 class="mb-0 fw-bold">File Specifications: <span class="text-primary">{{ file.file_no }}</span></h5>
+      </div>
+      <div class="card-body p-4">
+        <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          
+          <div class="row g-3">
+            <div class="col-md-12">
+              <div class="form-group mb-3">
+                <label class="form-label fw-semibold text-dark">File Title</label>
+                <input type="text" name="title" class="form-control" value="{{ file.title }}" required>
+              </div>
+            </div>
+
+            <div class="col-md-12">
+              <div class="form-group mb-3">
+                <label class="form-label fw-semibold text-dark">Subject / Description</label>
+                <textarea name="subject" rows="4" class="form-control" required>{{ file.subject }}</textarea>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="form-group mb-3">
+                <label class="form-label fw-semibold text-dark">Current Status</label>
+                <select name="status" class="form-select" required>
+                  <option value="OPEN" {% if file.status == 'OPEN' %}selected{% endif %}>Open</option>
+                  <option value="IN_PROGRESS" {% if file.status == 'IN_PROGRESS' %}selected{% endif %}>In Progress</option>
+                  <option value="CLOSED" {% if file.status == 'CLOSED' %}selected{% endif %}>Closed</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="form-group mb-3">
+                <label class="form-label fw-semibold text-dark">Priority Level</label>
+                <select name="priority" class="form-select" required>
+                  <option value="LOW" {% if file.priority == 'LOW' %}selected{% endif %}>Low</option>
+                  <option value="MEDIUM" {% if file.priority == 'MEDIUM' %}selected{% endif %}>Medium</option>
+                  <option value="HIGH" {% if file.priority == 'HIGH' %}selected{% endif %}>High</option>
+                  <option value="URGENT" {% if file.priority == 'URGENT' %}selected{% endif %}>Urgent</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="col-md-12">
+              <div class="form-group mb-3">
+                <label class="form-label fw-semibold text-dark">Current Holder (Assignee)</label>
+                <select name="current_holder" class="form-select select2-basic" required>
+                  {% for emp in employees %}
+                  <option value="{{ emp.id }}" {% if file.current_holder.id == emp.id %}selected{% endif %}>
+                    {{ emp.name }} ({{ emp.designation }} - {{ emp.department.dept_name }})
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+
+            <div class="col-md-12">
+              <div class="form-group mb-4">
+                <label class="form-label fw-semibold text-dark">Document Attachment</label>
+                {% if file.attachment %}
+                <div class="p-3 border rounded mb-3 bg-light bg-opacity-50 d-flex justify-content-between align-items-center">
+                  <div class="d-flex align-items-center gap-2">
+                    <i class="ti ti-file-text text-primary fs-3"></i>
+                    <div>
+                      <span class="d-block text-dark fw-medium text-truncate" style="max-width: 300px;">{{ file.attachment.name }}</span>
+                      <small class="text-muted">Currently attached document</small>
+                    </div>
+                  </div>
+                  <a href="{{ file.attachment.url }}" class="btn btn-sm btn-outline-primary" download>
+                    <i class="ti ti-download me-1"></i> Download
+                  </a>
+                </div>
+                {% endif %}
+                <input type="file" name="attachment" class="form-control">
+                <small class="text-muted d-block mt-1">Upload a PDF, Word document, or image to update the attached document.</small>
+              </div>
+            </div>
+
+            <div class="col-12 text-end">
+              <button type="submit" class="btn btn-primary px-4 py-2">
+                <i class="ti ti-circle-check me-1"></i> Save Changes
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .bg-light-primary {
+    background-color: rgba(99, 102, 241, 0.1) !important;
+  }
+</style>
+
+{% endblock %}

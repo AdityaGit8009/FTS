@@ -1,0 +1,678 @@
+{% extends 'empbase.html' %}
+{% load static %}
+{% block employee %}
+
+<div class="row align-items-center mb-4">
+  <div class="col-sm-6">
+    <div class="d-flex align-items-center gap-3">
+      <div class="theme-icon-wrapper bg-light-primary p-2 rounded">
+        <i class="ti ti-folders text-primary" style="font-size: 2rem;"></i>
+      </div>
+      <div>
+        <h3 class="mb-0 fw-bold">My Files Dashboard</h3>
+        <p class="text-muted mb-0">Track history, forward pending files, or initiate actions</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
+    <a href="{% url 'initiatefile' %}" class="btn btn-primary">
+      <i class="ti ti-plus me-1"></i> Initiate File
+    </a>
+  </div>
+</div>
+
+<!-- Tabs Navigation -->
+<div class="row">
+  <div class="col-12">
+    <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+      <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0">
+        <ul class="nav nav-tabs card-header-tabs" id="filesTab" role="tablist" style="border-bottom: 2px solid rgba(0,0,0,0.05);">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active fw-bold text-dark px-4 pb-3" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending-panel" type="button" role="tab" aria-controls="pending-panel" aria-selected="true">
+              <i class="ti ti-alert-circle me-1"></i> Pending Actions Queue ({{ pending_files|length }})
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link fw-bold text-dark px-4 pb-3" id="received-tab" data-bs-toggle="tab" data-bs-target="#received-panel" type="button" role="tab" aria-controls="received-panel" aria-selected="false">
+              <i class="ti ti-arrow-down-left me-1"></i> Received Files ({{ received_files|length }})
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link fw-bold text-dark px-4 pb-3" id="initiated-tab" data-bs-toggle="tab" data-bs-target="#initiated-panel" type="button" role="tab" aria-controls="initiated-panel" aria-selected="false">
+              <i class="ti ti-file-plus me-1"></i> Initiated by Me ({{ initiated_files|length }})
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link fw-bold text-dark px-4 pb-3" id="history-tab" data-bs-toggle="tab" data-bs-target="#history-panel" type="button" role="tab" aria-controls="history-panel" aria-selected="false">
+              <i class="ti ti-history me-1"></i> Handled History ({{ handled_files|length }})
+            </button>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card-body p-4">
+        <div class="tab-content" id="filesTabContent">
+          
+          <!-- TAB 1: PENDING ACTION QUEUE -->
+          <div class="tab-pane fade show active" id="pending-panel" role="tabpanel" aria-labelledby="pending-tab">
+            <div class="table-responsive">
+              <table id="pendingTable" class="table table-hover align-middle mb-0 text-nowrap" style="width:100%">
+                <thead class="bg-light bg-opacity-50">
+                  <tr>
+                    <th>File No</th>
+                    <th>Title & Subject</th>
+                    <th>Priority</th>
+                    <th>Initiator</th>
+                    <th>Attachment</th>
+                    <th>Created Date</th>
+                    <th class="text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for f in pending_files %}
+                  <tr>
+                    <td><span class="fw-semibold text-primary">{{ f.file_no }}</span></td>
+                    <td>
+                      <strong class="text-dark d-block" style="max-width: 250px; overflow: hidden; text-overflow: ellipsis;">{{ f.title }}</strong>
+                      <small class="text-muted d-block text-truncate" style="max-width: 250px;">{{ f.subject }}</small>
+                    </td>
+                    <td>
+                      {% if f.priority == 'LOW' %}
+                        <span class="badge bg-light-info text-info">Low</span>
+                      {% elif f.priority == 'MEDIUM' %}
+                        <span class="badge bg-light-secondary text-secondary">Medium</span>
+                      {% elif f.priority == 'HIGH' %}
+                        <span class="badge bg-light-warning text-warning">High</span>
+                      {% else %}
+                        <span class="badge bg-light-danger text-danger badge-blink">Urgent</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      <span class="fw-medium text-dark d-block">{{ f.initiated_by.name }}</span>
+                      <span class="text-muted small">{{ f.initiated_by.department.dept_name }}</span>
+                    </td>
+                    <td>
+                      {% if f.attachment %}
+                        <a href="{{ f.attachment.url }}" class="btn btn-sm btn-light-primary rounded-circle p-1" title="Download" download>
+                          <i class="ti ti-download" style="font-size: 1rem;"></i>
+                        </a>
+                      {% else %}
+                        <span class="text-muted small">No File</span>
+                      {% endif %}
+                    </td>
+                    <td><span class="text-secondary small">{{ f.created_at|date:"d M Y, h:i A" }}</span></td>
+                    <td class="text-center">
+                      <div class="d-flex justify-content-center gap-1">
+                        <a href="{% url 'forwardfile' f.id %}" class="btn btn-sm btn-primary rounded px-2">
+                          <i class="ti ti-arrow-right me-1"></i> Forward
+                        </a>
+                        <a href="{% url 'returnfile' f.id %}" class="btn btn-sm btn-warning text-dark rounded px-2">
+                          <i class="ti ti-arrow-left me-1"></i> Return
+                        </a>
+                        {% if f.initiated_by == emp %}
+                        <a href="{% url 'closefile' f.id %}" class="btn btn-sm btn-danger rounded px-2">
+                          <i class="ti ti-lock me-1"></i> Close
+                        </a>
+                        {% endif %}
+                        <a href="{% url 'emp_editfile' f.id %}" class="btn btn-sm btn-light-secondary rounded px-2">
+                          <i class="ti ti-edit"></i>
+                        </a>
+                      </div>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- TAB 2: RECEIVED FILES -->
+          <div class="tab-pane fade" id="received-panel" role="tabpanel" aria-labelledby="received-tab">
+            <div class="table-responsive">
+              <table id="receivedTable" class="table table-hover align-middle mb-0 text-nowrap" style="width:100%">
+                <thead class="bg-light bg-opacity-50">
+                  <tr>
+                    <th>File No</th>
+                    <th>Title & Subject</th>
+                    <th>Priority</th>
+                    <th>Sender (From)</th>
+                    <th>Attachment</th>
+                    <th>Received Date</th>
+                    <th class="text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for f in received_files %}
+                  <tr>
+                    <td><span class="fw-semibold text-primary">{{ f.file_no }}</span></td>
+                    <td>
+                      <strong class="text-dark d-block" style="max-width: 250px; overflow: hidden; text-overflow: ellipsis;">{{ f.title }}</strong>
+                      <small class="text-muted d-block text-truncate" style="max-width: 250px;">{{ f.subject }}</small>
+                    </td>
+                    <td>
+                      {% if f.priority == 'LOW' %}
+                        <span class="badge bg-light-info text-info">Low</span>
+                      {% elif f.priority == 'MEDIUM' %}
+                        <span class="badge bg-light-secondary text-secondary">Medium</span>
+                      {% elif f.priority == 'HIGH' %}
+                        <span class="badge bg-light-warning text-warning">High</span>
+                      {% else %}
+                        <span class="badge bg-light-danger text-danger badge-blink">Urgent</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% with last_mv=f.movements.all.last %}
+                        {% if last_mv and last_mv.from_employee %}
+                          <span class="fw-medium text-dark d-block">{{ last_mv.from_employee.name }}</span>
+                          <span class="text-muted small">{{ last_mv.from_employee.department.dept_name }}</span>
+                        {% else %}
+                          <span class="fw-medium text-dark d-block">{{ f.initiated_by.name }}</span>
+                          <span class="text-muted small">{{ f.initiated_by.department.dept_name }}</span>
+                        {% endif %}
+                      {% endwith %}
+                    </td>
+                    <td>
+                      {% if f.attachment %}
+                        <a href="{{ f.attachment.url }}" class="btn btn-sm btn-light-primary rounded-circle p-1" title="Download" download>
+                          <i class="ti ti-download" style="font-size: 1rem;"></i>
+                        </a>
+                      {% else %}
+                        <span class="text-muted small">No File</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% with last_mv=f.movements.all.last %}
+                        {% if last_mv %}
+                          <span class="text-secondary small">{{ last_mv.moved_at|date:"d M Y, h:i A" }}</span>
+                        {% else %}
+                          <span class="text-secondary small">{{ f.created_at|date:"d M Y, h:i A" }}</span>
+                        {% endif %}
+                      {% endwith %}
+                    </td>
+                    <td class="text-center">
+                      <div class="d-flex justify-content-center gap-1">
+                        <a href="{% url 'forwardfile' f.id %}" class="btn btn-sm btn-primary rounded px-2">
+                          <i class="ti ti-arrow-right me-1"></i> Forward
+                        </a>
+                        <a href="{% url 'returnfile' f.id %}" class="btn btn-sm btn-warning text-dark rounded px-2">
+                          <i class="ti ti-arrow-left me-1"></i> Return
+                        </a>
+                      </div>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- TAB 3: INITIATED BY ME -->
+          <div class="tab-pane fade" id="initiated-panel" role="tabpanel" aria-labelledby="initiated-tab">
+            <div class="table-responsive">
+              <table id="initiatedTable" class="table table-hover align-middle mb-0 text-nowrap" style="width:100%">
+                <thead class="bg-light bg-opacity-50">
+                  <tr>
+                    <th>File No</th>
+                    <th>Title & Subject</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Current Holder</th>
+                    <th>Attachment</th>
+                    <th>Created Date</th>
+                    <th class="text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for f in initiated_files %}
+                  <tr>
+                    <td><span class="fw-semibold text-primary">{{ f.file_no }}</span></td>
+                    <td>
+                      <strong class="text-dark d-block" style="max-width: 250px; overflow: hidden; text-overflow: ellipsis;">{{ f.title }}</strong>
+                      <small class="text-muted d-block text-truncate" style="max-width: 250px;">{{ f.subject }}</small>
+                    </td>
+                    <td>
+                      {% if f.priority == 'LOW' %}
+                        <span class="badge bg-light-info text-info">Low</span>
+                      {% elif f.priority == 'MEDIUM' %}
+                        <span class="badge bg-light-secondary text-secondary">Medium</span>
+                      {% elif f.priority == 'HIGH' %}
+                        <span class="badge bg-light-warning text-warning">High</span>
+                      {% else %}
+                        <span class="badge bg-light-danger text-danger badge-blink">Urgent</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if f.status == 'OPEN' %}
+                        <span class="badge bg-light-success text-success px-2 py-1 rounded-pill">Open</span>
+                      {% elif f.status == 'IN_PROGRESS' %}
+                        <span class="badge bg-light-primary text-primary px-2 py-1 rounded-pill">In Progress</span>
+                      {% else %}
+                        <span class="badge bg-light-danger text-danger px-2 py-1 rounded-pill">Closed</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      <span class="fw-medium text-dark d-block">{{ f.current_holder.name }}</span>
+                      <span class="text-muted small">{{ f.current_holder.designation }}</span>
+                    </td>
+                    <td>
+                      {% if f.attachment %}
+                        <a href="{{ f.attachment.url }}" class="btn btn-sm btn-light-primary rounded-circle p-1" title="Download" download>
+                          <i class="ti ti-download" style="font-size: 1rem;"></i>
+                        </a>
+                      {% else %}
+                        <span class="text-muted small">No File</span>
+                      {% endif %}
+                    </td>
+                    <td><span class="text-secondary small">{{ f.created_at|date:"d M Y, h:i A" }}</span></td>
+                    <td class="text-center">
+                      <div class="d-flex justify-content-center gap-2">
+                        <a href="{% url 'emp_editfile' f.id %}" class="btn btn-sm btn-light-primary rounded px-2">
+                          <i class="ti ti-edit me-1"></i> Edit
+                        </a>
+                        {% if f.status != 'CLOSED' %}
+                        <a href="{% url 'closefile' f.id %}" class="btn btn-sm btn-danger rounded px-2">
+                          <i class="ti ti-lock me-1"></i> Close
+                        </a>
+                        {% endif %}
+                        <a href="{% url 'emp_deletefile' f.id %}" class="btn btn-sm btn-light-danger rounded px-2" onclick="return confirm('Are you sure you want to delete file {{ f.file_no }}? This will delete all record logs.');">
+                          <i class="ti ti-trash me-1"></i> Delete
+                        </a>
+                      </div>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- TAB 3: HANDLED HISTORY -->
+          <div class="tab-pane fade" id="history-panel" role="tabpanel" aria-labelledby="history-tab">
+            <div class="table-responsive">
+              <table id="historyTable" class="table table-hover align-middle mb-0 text-nowrap" style="width:100%">
+                <thead class="bg-light bg-opacity-50">
+                  <tr>
+                    <th>File No</th>
+                    <th>Title & Subject</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Current Holder</th>
+                    <th>Attachment</th>
+                    <th>Initiated Date</th>
+                    <th class="text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for f in handled_files %}
+                  <tr>
+                    <td><span class="fw-semibold text-primary">{{ f.file_no }}</span></td>
+                    <td>
+                      <strong class="text-dark d-block" style="max-width: 250px; overflow: hidden; text-overflow: ellipsis;">{{ f.title }}</strong>
+                      <small class="text-muted d-block text-truncate" style="max-width: 250px;">{{ f.subject }}</small>
+                    </td>
+                    <td>
+                      {% if f.priority == 'LOW' %}
+                        <span class="badge bg-light-info text-info">Low</span>
+                      {% elif f.priority == 'MEDIUM' %}
+                        <span class="badge bg-light-secondary text-secondary">Medium</span>
+                      {% elif f.priority == 'HIGH' %}
+                        <span class="badge bg-light-warning text-warning">High</span>
+                      {% else %}
+                        <span class="badge bg-light-danger text-danger badge-blink">Urgent</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if f.status == 'OPEN' %}
+                        <span class="badge bg-light-success text-success px-2 py-1 rounded-pill">Open</span>
+                      {% elif f.status == 'IN_PROGRESS' %}
+                        <span class="badge bg-light-primary text-primary px-2 py-1 rounded-pill">In Progress</span>
+                      {% else %}
+                        <span class="badge bg-light-danger text-danger px-2 py-1 rounded-pill">Closed</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      <span class="fw-medium text-dark d-block">{{ f.current_holder.name }}</span>
+                      <span class="text-muted small">{{ f.current_holder.department.dept_name }}</span>
+                    </td>
+                    <td>
+                      {% if f.attachment %}
+                        <a href="{{ f.attachment.url }}" class="btn btn-sm btn-light-primary rounded-circle p-1" title="Download" download>
+                          <i class="ti ti-download" style="font-size: 1rem;"></i>
+                        </a>
+                      {% else %}
+                        <span class="text-muted small">No File</span>
+                      {% endif %}
+                    </td>
+                    <td><span class="text-secondary small">{{ f.created_at|date:"d M Y, h:i A" }}</span></td>
+                    <td class="text-center">
+                      <button class="btn btn-sm btn-light-info rounded px-3 py-1" type="button" data-bs-toggle="modal" data-bs-target="#historyModal-{{ f.id }}">
+                        <i class="ti ti-history me-1"></i> Track History
+                      </button>
+                    </td>
+                  </tr>
+
+                  <!-- Modal for Timeline tracking -->
+                  <div class="modal fade" id="historyModal-{{ f.id }}" tabindex="-1" aria-labelledby="historyModalLabel-{{ f.id }}" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                      <div class="modal-content border-0 shadow-lg" style="border-radius: 14px;">
+                        <div class="modal-header border-0 pt-4 px-4 pb-2">
+                          <h5 class="modal-title fw-bold text-dark" id="historyModalLabel-{{ f.id }}">
+                            <i class="ti ti-route-2 text-primary me-2"></i> Audit Trail & Movements: <span class="text-primary">{{ f.file_no }}</span>
+                          </h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body px-4 py-3" style="max-height: 450px; overflow-y: auto;">
+                          <div class="row mb-3 pb-3 border-bottom g-3">
+                            <div class="col-md-6">
+                              <span class="text-muted small d-block">File Title:</span>
+                              <strong class="text-dark">{{ f.title }}</strong>
+                            </div>
+                            <div class="col-md-6">
+                              <span class="text-muted small d-block">Current Holder:</span>
+                              <span class="badge bg-light-primary text-primary">{{ f.current_holder.name }} ({{ f.current_holder.designation }})</span>
+                            </div>
+                            <div class="col-md-4">
+                              <span class="text-muted small d-block">Status:</span>
+                              {% if f.status == 'OPEN' %}
+                                <span class="badge bg-light-success text-success">Open</span>
+                              {% elif f.status == 'IN_PROGRESS' %}
+                                <span class="badge bg-light-primary text-primary">In Progress</span>
+                              {% else %}
+                                <span class="badge bg-light-danger text-danger">Closed</span>
+                              {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                              <span class="text-muted small d-block">Priority:</span>
+                              {% if f.priority == 'LOW' %}
+                                <span class="badge bg-light-info text-info">Low</span>
+                              {% elif f.priority == 'MEDIUM' %}
+                                <span class="badge bg-light-secondary text-secondary">Medium</span>
+                              {% elif f.priority == 'HIGH' %}
+                                <span class="badge bg-light-warning text-warning">High</span>
+                              {% else %}
+                                <span class="badge bg-light-danger text-danger">Urgent</span>
+                              {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                              <span class="text-muted small d-block">Attachment Document:</span>
+                              {% if f.attachment %}
+                                <a href="{{ f.attachment.url }}" class="btn btn-sm btn-link-primary px-0 py-0 fw-bold" download><i class="ti ti-download me-1"></i> Download</a>
+                              {% else %}
+                                <span class="text-muted small">No File</span>
+                              {% endif %}
+                            </div>
+                          </div>
+
+                          <div class="position-relative ps-4 timeline-wrapper mt-4">
+                            <div class="timeline-line position-absolute start-0 top-0 bottom-0 bg-secondary bg-opacity-25" style="width: 2px; left: 15px !important;"></div>
+                            
+                            {% for mv in f.movements.all %}
+                            <div class="position-relative mb-4 timeline-item" style="padding-left: 20px;">
+                              <div class="position-absolute d-flex align-items-center justify-content-center rounded-circle 
+                                {% if mv.action == 'CREATE' %}bg-success text-white
+                                {% elif mv.action == 'FORWARD' %}bg-primary text-white
+                                {% elif mv.action == 'RETURN' %}bg-warning text-dark
+                                {% else %}bg-danger text-white{% endif %}" 
+                                style="width: 32px; height: 32px; left: -16px; border: 4px solid var(--body-bg, #fff); font-size: 0.8rem; z-index: 2;">
+                                <i class="ti 
+                                  {% if mv.action == 'CREATE' %}ti-plus
+                                  {% elif mv.action == 'FORWARD' %}ti-arrow-right
+                                  {% elif mv.action == 'RETURN' %}ti-arrow-left
+                                  {% else %}ti-lock{% endif %}"></i>
+                              </div>
+                              
+                              <div class="card border border-light shadow-none m-0 ps-3 py-2 bg-light bg-opacity-25" style="border-radius: 8px;">
+                                <div class="card-body p-2">
+                                  <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                                    <div>
+                                      <span class="badge 
+                                        {% if mv.action == 'CREATE' %}bg-light-success text-success
+                                        {% elif mv.action == 'FORWARD' %}bg-light-primary text-primary
+                                        {% elif mv.action == 'RETURN' %}bg-light-warning text-warning
+                                        {% else %}bg-light-danger text-danger{% endif %} px-2 py-0.5 rounded mb-2">
+                                        {{ mv.get_action_display }}
+                                      </span>
+                                      
+                                      <p class="mb-1 text-dark small mt-1">
+                                        {% if mv.action == 'CREATE' %}
+                                          File initiated by <strong>{{ mv.to_employee.name }}</strong>
+                                        {% elif mv.action == 'FORWARD' %}
+                                          Forwarded from <strong>{{ mv.from_employee.name }}</strong> to <strong>{{ mv.to_employee.name }}</strong>
+                                        {% elif mv.action == 'RETURN' %}
+                                          Returned from <strong>{{ mv.from_employee.name }}</strong> to <strong>{{ mv.to_employee.name }}</strong>
+                                        {% elif mv.action == 'CLOSE' %}
+                                          File closed by <strong>{{ mv.from_employee.name }}</strong>
+                                        {% endif %}
+                                      </p>
+                                      
+                                      {% if mv.remarks %}
+                                        <p class="mb-0 text-muted small italic-remarks mt-1">
+                                          <i class="ti ti-quote text-secondary me-1"></i>"{{ mv.remarks }}"
+                                        </p>
+                                      {% endif %}
+                                    </div>
+                                    <div class="text-end">
+                                      <span class="text-secondary small d-block"><i class="ti ti-clock me-1"></i>{{ mv.moved_at|date:"d M Y, h:i A" }}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            {% endfor %}
+                          </div>
+                        </div>
+                        <div class="modal-footer border-0 px-4 pb-4 pt-2 justify-content-between">
+                          <div class="d-flex align-items-center">
+                            {% if f.status != 'CLOSED' %}
+                              <div class="d-flex align-items-center gap-2 flex-wrap">
+                                {% if f.current_holder == emp %}
+                                  <span class="text-muted small fw-semibold me-1">Take Action:</span>
+                                  <a href="{% url 'forwardfile' f.id %}" class="btn btn-sm btn-primary rounded">
+                                    <i class="ti ti-arrow-right me-1"></i> Forward
+                                  </a>
+                                  <a href="{% url 'returnfile' f.id %}" class="btn btn-sm btn-warning text-dark rounded">
+                                    <i class="ti ti-arrow-left me-1"></i> Return
+                                  </a>
+                                {% endif %}
+                                
+                                {% if f.initiated_by == emp %}
+                                  <a href="{% url 'closefile' f.id %}" class="btn btn-sm btn-danger rounded">
+                                    <i class="ti ti-lock me-1"></i> Close File
+                                  </a>
+                                {% endif %}
+                                
+                                {% if f.current_holder != emp %}
+                                  <span class="text-muted small ms-2"><i class="ti ti-info-circle me-1"></i> Pending action by <strong>{{ f.current_holder.name }}</strong></span>
+                                {% endif %}
+                              </div>
+                            {% else %}
+                              <span class="text-success small fw-semibold"><i class="ti ti-circle-check me-1"></i> This file has been resolved and closed.</span>
+                            {% endif %}
+                          </div>
+                          <button type="button" class="btn btn-secondary rounded" data-bs-dismiss="modal">Close</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .bg-light-primary {
+    background-color: rgba(99, 102, 241, 0.1) !important;
+  }
+  .bg-light-success {
+    background-color: rgba(16, 185, 129, 0.1) !important;
+  }
+  .bg-light-danger {
+    background-color: rgba(239, 68, 68, 0.1) !important;
+  }
+  .bg-light-warning {
+    background-color: rgba(245, 158, 11, 0.1) !important;
+  }
+  .bg-light-info {
+    background-color: rgba(6, 182, 212, 0.1) !important;
+  }
+  .bg-light-secondary {
+    background-color: rgba(108, 117, 125, 0.1) !important;
+  }
+  .btn-light-primary {
+    color: #6366f1;
+    background-color: rgba(99, 102, 241, 0.1);
+    border: none;
+    transition: all 0.2s ease;
+  }
+  .btn-light-primary:hover {
+    color: #ffffff;
+    background-color: #6366f1;
+  }
+  .btn-light-info {
+    color: #06b6d4;
+    background-color: rgba(6, 182, 212, 0.1);
+    border: none;
+    transition: all 0.2s ease;
+  }
+  .btn-light-info:hover {
+    color: #ffffff;
+    background-color: #06b6d4;
+  }
+  .btn-light-danger {
+    color: #ef4444;
+    background-color: rgba(239, 68, 68, 0.1);
+    border: none;
+    transition: all 0.2s ease;
+  }
+  .btn-light-danger:hover {
+    color: #ffffff;
+    background-color: #ef4444;
+  }
+  .italic-remarks {
+    font-style: italic;
+    background: rgba(0,0,0,0.02);
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+  }
+  .badge-blink {
+    animation: blinker 1.5s linear infinite;
+  }
+  @keyframes blinker {
+    50% { opacity: 0.6; }
+  }
+  .nav-tabs .nav-link.active {
+    border-bottom: 3px solid #6366f1 !important;
+    background: transparent !important;
+    color: #6366f1 !important;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialise pending Action table
+    $('#pendingTable').DataTable({
+      dom: 'Bfrtip',
+      buttons: [
+        {
+          extend: 'excelHtml5',
+          text: '<i class="ti ti-file-spreadsheet me-1"></i> Excel',
+          className: 'btn btn-sm btn-light-success me-2',
+          exportOptions: { columns: [0, 1, 2, 3, 5] }
+        },
+        {
+          extend: 'pdfHtml5',
+          text: '<i class="ti ti-file-text me-1"></i> PDF',
+          className: 'btn btn-sm btn-light-danger me-2',
+          exportOptions: { columns: [0, 1, 2, 3, 5] }
+        }
+      ],
+      pageLength: 5,
+      ordering: true,
+      info: true,
+      responsive: true,
+      columnDefs: [{ orderable: false, targets: [4, 6] }]
+    });
+
+    // Initialise received table
+    $('#receivedTable').DataTable({
+      dom: 'Bfrtip',
+      buttons: [
+        {
+          extend: 'excelHtml5',
+          text: '<i class="ti ti-file-spreadsheet me-1"></i> Excel',
+          className: 'btn btn-sm btn-light-success me-2',
+          exportOptions: { columns: [0, 1, 2, 3, 5] }
+        },
+        {
+          extend: 'pdfHtml5',
+          text: '<i class="ti ti-file-text me-1"></i> PDF',
+          className: 'btn btn-sm btn-light-danger me-2',
+          exportOptions: { columns: [0, 1, 2, 3, 5] }
+        }
+      ],
+      pageLength: 5,
+      ordering: true,
+      info: true,
+      responsive: true,
+      columnDefs: [{ orderable: false, targets: [4, 6] }]
+    });
+
+    // Initialise initiated table
+    $('#initiatedTable').DataTable({
+      dom: 'Bfrtip',
+      buttons: [
+        {
+          extend: 'excelHtml5',
+          text: '<i class="ti ti-file-spreadsheet me-1"></i> Excel',
+          className: 'btn btn-sm btn-light-success me-2',
+          exportOptions: { columns: [0, 1, 2, 3, 4, 6] }
+        },
+        {
+          extend: 'pdfHtml5',
+          text: '<i class="ti ti-file-text me-1"></i> PDF',
+          className: 'btn btn-sm btn-light-danger me-2',
+          exportOptions: { columns: [0, 1, 2, 3, 4, 6] }
+        }
+      ],
+      pageLength: 5,
+      ordering: true,
+      info: true,
+      responsive: true,
+      columnDefs: [{ orderable: false, targets: [5, 7] }]
+    });
+
+    // Initialise history table
+    $('#historyTable').DataTable({
+      dom: 'Bfrtip',
+      buttons: [
+        {
+          extend: 'excelHtml5',
+          text: '<i class="ti ti-file-spreadsheet me-1"></i> Excel',
+          className: 'btn btn-sm btn-light-success me-2',
+          exportOptions: { columns: [0, 1, 2, 3, 4, 6] }
+        },
+        {
+          extend: 'pdfHtml5',
+          text: '<i class="ti ti-file-text me-1"></i> PDF',
+          className: 'btn btn-sm btn-light-danger me-2',
+          exportOptions: { columns: [0, 1, 2, 3, 4, 6] }
+        }
+      ],
+      pageLength: 10,
+      ordering: true,
+      info: true,
+      responsive: true,
+      columnDefs: [{ orderable: false, targets: [5, 7] }]
+    });
+  });
+</script>
+
+{% endblock %}
